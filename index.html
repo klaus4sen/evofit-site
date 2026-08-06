@@ -909,13 +909,15 @@
         </div>
       </div>
     </div>
-    <form class="contact-form reveal reveal-d2" onsubmit="event.preventDefault(); alert('Thanks — replace this with a real form handler or just message me on WhatsApp.');">
-      <input type="text" placeholder="Full name" data-i18n-ph="form_name" required>
-      <input type="email" placeholder="Email" data-i18n-ph="form_email" required>
-      <input type="text" placeholder="Phone / WhatsApp" data-i18n-ph="form_phone" required>
-      <textarea rows="4" placeholder="Tell me about your goals" data-i18n-ph="form_goals"></textarea>
-      <button type="submit" class="btn btn-primary" style="align-self:flex-start;" data-i18n="form_send">Send Message</button>
-    </form>
+    <form class="contact-form reveal reveal-d2" onsubmit="return sendContactForm(event);">
+  <input type="hidden" name="access_key" value="22e5d550-15ab-492e-8f13-bc2e01a34ce0">
+  <input type="hidden" name="subject" value="New inquiry from EVO FIT website">
+  <input type="text" name="name" placeholder="Full name" data-i18n-ph="form_name" required>
+  <input type="email" name="email" placeholder="Email" data-i18n-ph="form_email" required>
+  <input type="text" name="phone" placeholder="Phone / WhatsApp" data-i18n-ph="form_phone" required>
+  <textarea rows="4" name="message" placeholder="Tell me about your goals" data-i18n-ph="form_goals"></textarea>
+  <button type="submit" class="btn btn-primary" style="align-self:flex-start;" data-i18n="form_send">Send Message</button>
+</form>
   </div>
 </section>
 
@@ -2850,6 +2852,34 @@
     sb.auth.getSession().then(({ data })=>{
       if(data && data.session) clientSession = data.session;
     });
+  }
+
+  // ============ INIT ============
+  // ============ CONTACT FORM (Web3Forms) ============
+  async function sendContactForm(e){
+    e.preventDefault();
+    const form = e.target;
+    const btn = form.querySelector('button[type="submit"]');
+    const originalText = btn.textContent;
+    btn.textContent = 'Sending...';
+    try{
+      const res = await fetch('https://api.web3forms.com/submit', {
+        method: 'POST',
+        headers: { 'Accept': 'application/json' },
+        body: new FormData(form)
+      });
+      const result = await res.json();
+      if(result.success){
+        alert("Thanks — your message has been sent! I'll get back to you soon.");
+        form.reset();
+      } else {
+        alert("Something went wrong sending your message — try WhatsApp instead.");
+      }
+    }catch(err){
+      alert("Something went wrong sending your message — try WhatsApp instead.");
+    }
+    btn.textContent = originalText;
+    return false;
   }
 
   // ============ INIT ============
