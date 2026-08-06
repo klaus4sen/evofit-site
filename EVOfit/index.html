@@ -1,0 +1,2861 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EVO FIT — Coaching by [Your Name]</title>
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="favicon-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Inter:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root{
+    --black:#0B0B0C;
+    --black-soft:#17181A;
+    --cream:#F6F3EC;
+    --white:#FFFFFF;
+    --surface:#FFFFFF;
+    --text:#0B0B0C;
+    --muted:#5c584d;
+    --muted-2:#7a7566;
+    --orange:#FF4D00;
+    --orange-deep:#C43800;
+    --orange-tint:#FCE3D6;
+    --line:#E1DCCF;
+    --line-dark:#333333;
+    --serif:'Fraunces', serif;
+    --body:'Inter', sans-serif;
+    --mono:'Space Mono', monospace;
+  }
+  /* ===== NIGHT MODE (site-wide dark theme toggle) ===== */
+  body.night{
+    --cream:#101012;
+    --surface:#1c1c1f;
+    --text:#F2F0EA;
+    --muted:#b8b3a6;
+    --muted-2:#9a958a;
+    --line:#2e2e31;
+    --orange-tint:#3a2013;
+    color-scheme: dark;
+  }
+  body.night header.solid{background:color-mix(in srgb, var(--surface) 92%, transparent);}
+  body{transition:background .3s ease, color .3s ease;}
+  .pillar, .program-card, .shop-card, .review-card, .checkout-box, .cart-drawer, .tier-select{transition:background .3s ease, border-color .3s ease;}
+
+  /* ===== ARABIC / RTL ===== */
+  html[dir="rtl"]{--serif:'Tajawal', serif; --body:'Tajawal', sans-serif; --mono:'Tajawal', monospace;}
+  html[dir="rtl"] body{text-align:right;}
+  html[dir="rtl"] .eyebrow::before{order:2;}
+  html[dir="rtl"] em{font-style:normal;}
+  html[dir="rtl"] .hero-vertical{display:none;}
+  html[dir="rtl"] .split-word, html[dir="rtl"] .split-char{transform:none !important;}
+  html[dir="rtl"] .rank-features li::before, html[dir="rtl"] .row-arrow{transform:scaleX(-1);}
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  @media (prefers-reduced-motion: reduce){
+    html{scroll-behavior:auto;}
+    *{animation-duration:.01ms !important; transition-duration:.01ms !important;}
+  }
+  body{background:var(--cream); color:var(--text); font-family:var(--body); line-height:1.55; overflow-x:hidden;}
+  img{max-width:100%; display:block;}
+  a{color:inherit; text-decoration:none;}
+  button{font-family:inherit; cursor:pointer; border:none; background:none;}
+  ul{list-style:none;}
+  input,textarea,select{font-family:inherit;}
+  :focus-visible{outline:3px solid var(--orange); outline-offset:3px;}
+  .wrap{max-width:1280px; margin:0 auto; padding:0 40px;}
+  @media (max-width:700px){.wrap{padding:0 22px;}}
+
+  h1,h2,h3{font-family:var(--serif); font-weight:400; line-height:1.05; letter-spacing:-0.01em;}
+  em{font-style:italic; color:var(--orange);}
+
+  .eyebrow{font-family:var(--mono); font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--orange); display:flex; align-items:center; gap:10px; margin-bottom:18px;}
+  .eyebrow::before{content:""; width:22px; height:1px; background:var(--orange);}
+
+  .hlink{position:relative; display:inline-block;}
+  .hlink::after{content:""; position:absolute; left:0; bottom:-2px; width:100%; height:1px; background:currentColor; transform:scaleX(0); transform-origin:right; transition:transform .35s ease;}
+  .hlink:hover::after{transform:scaleX(1); transform-origin:left;}
+
+  .btn{display:inline-flex; align-items:center; gap:10px; padding:16px 30px; font-family:var(--body); font-weight:600; font-size:13px; letter-spacing:.05em; text-transform:uppercase; border-radius:100px; transition:transform .25s ease, background .25s ease, color .25s ease;}
+  .btn-primary{background:var(--orange); color:var(--white);}
+  .btn-primary:hover{background:var(--black); transform:translateY(-2px);}
+  .btn-outline{border:1px solid var(--text); color:var(--text);}
+  .btn-outline:hover{background:var(--text); color:var(--cream); transform:translateY(-2px);}
+  .btn-outline-light{border:1px solid var(--white); color:var(--white);}
+  .btn-outline-light:hover{background:var(--white); color:var(--black);}
+  .btn-block{width:100%; justify-content:center;}
+  .btn-sm{padding:9px 16px; font-size:11px;}
+
+  /* ===== reveal-on-scroll ===== */
+  .reveal{opacity:0; transform:translateY(48px) scale(.98); transition:opacity .9s cubic-bezier(.16,.8,.3,1), transform .9s cubic-bezier(.16,.8,.3,1);}
+  .reveal.in-view{opacity:1; transform:translateY(0) scale(1);}
+  .reveal-d1{transition-delay:.08s;} .reveal-d2{transition-delay:.16s;} .reveal-d3{transition-delay:.24s;} .reveal-d4{transition-delay:.32s;} .reveal-d5{transition-delay:.4s;}
+
+  /* ===== split-word text animation (Istanbul-style name split) ===== */
+  .split{overflow:hidden; padding-bottom:.12em;}
+  .split-word{display:inline-block; opacity:0; transform:translateY(105%) rotate(2deg); transition:opacity .55s cubic-bezier(.22,.61,.36,1), transform .55s cubic-bezier(.22,.61,.36,1);}
+  .split-word.in{opacity:1; transform:translateY(0) rotate(0);}
+
+  /* ===== split-LETTER animation — mirrors the Istanbul template's vertical                                    letter-by-letter name reveal (A-l-i-n-a-B-u-l-u-t) ===== */
+  .split-chars{display:flex; align-items:center; overflow:hidden;}
+  .split-char{display:inline-block; opacity:0; transform:translateY(100%); transition:opacity .5s cubic-bezier(.22,.61,.36,1), transform .5s cubic-bezier(.22,.61,.36,1);}
+  .split-char.in{opacity:1; transform:translateY(0);}
+
+  /* ===== scroll-linked parallax (continuous motion while scrolling, not just on-enter) ===== */
+  [data-parallax]{will-change:transform;}
+
+  /* ===== scroll progress bar ===== */
+  .scroll-progress{position:fixed; top:0; left:0; height:3px; background:var(--orange); width:0%; z-index:999; transition:width .05s linear;}
+
+  /* ===== HEADER ===== */
+  header{position:fixed; top:var(--announce-offset,0px); left:0; right:0; z-index:200; padding:26px 0; transition:background .3s ease, padding .3s ease, border-color .3s ease, top .25s ease; border-bottom:1px solid transparent;}
+  header.solid{background:rgba(246,243,236,.92); backdrop-filter:blur(10px); padding:16px 0; border-color:var(--line);}
+  .nav{display:flex; align-items:center; justify-content:space-between; max-width:1280px; margin:0 auto; padding:0 40px;}
+  @media (max-width:700px){.nav{padding:0 22px;}}
+  .logo{font-family:var(--serif); font-style:italic; font-size:22px; direction:ltr; unicode-bidi:isolate;}
+  .logo span{color:var(--orange);}
+  .nav-right{display:flex; align-items:center; gap:22px;}
+  .cart-btn{display:flex; align-items:center; gap:8px; font-family:var(--mono); font-size:12px; padding:8px;}
+  .cart-count{background:var(--black); color:var(--white); width:19px; height:19px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:10px;}
+  .menu-toggle{display:flex; align-items:center; gap:10px; font-family:var(--mono); font-size:11px; letter-spacing:.12em; text-transform:uppercase; padding:8px;}
+  .menu-toggle .bars{display:flex; flex-direction:column; gap:4px; width:22px;}
+  .menu-toggle .bars span{height:1px; background:var(--text); width:100%; transition:transform .3s ease, opacity .3s ease;}
+
+  /* ===== FULL SCREEN MENU ===== */
+  .menu-overlay{position:fixed; inset:0; background:var(--black); color:var(--white); z-index:1000; padding:26px 0; display:flex; flex-direction:column; justify-content:space-between; clip-path:circle(0% at 100% 0%); transition:clip-path .6s cubic-bezier(.65,0,.35,1); pointer-events:none; overflow-y:auto;}
+  .menu-overlay.active{clip-path:circle(150% at 100% 0%); pointer-events:auto;}
+  .menu-top{display:flex; justify-content:space-between; align-items:center; padding:0 40px;}
+  @media (max-width:700px){.menu-top{padding:0 22px;}}
+  .menu-top .logo{color:var(--white);}
+  .menu-close{display:flex; align-items:center; gap:10px; color:var(--white); font-family:var(--mono); font-size:11px; letter-spacing:.12em; text-transform:uppercase; padding:8px;}
+  .menu-links{padding:20px 40px; display:flex; flex-direction:column; gap:4px;}
+  @media (max-width:700px){.menu-links{padding:20px 22px;}}
+  .menu-links a{font-family:var(--serif); font-size:clamp(34px,8vw,84px); display:flex; align-items:baseline; gap:20px; padding:10px 0; border-bottom:1px solid var(--line-dark); opacity:0; transform:translateY(30px); transition:opacity .5s ease, transform .5s ease, color .3s ease;}
+  .menu-overlay.active .menu-links a{opacity:1; transform:translateY(0);}
+  .menu-links a:nth-child(1){transition-delay:.05s;}
+  .menu-links a:nth-child(2){transition-delay:.1s;}
+  .menu-links a:nth-child(3){transition-delay:.15s;}
+  .menu-links a:nth-child(4){transition-delay:.2s;}
+  .menu-links a:nth-child(5){transition-delay:.25s;}
+  .menu-links a:nth-child(6){transition-delay:.3s;}
+  .menu-links a:hover{color:var(--orange);}
+  .menu-links a .n{font-family:var(--mono); font-size:13px; color:var(--orange);}
+  .menu-bottom{padding:0 40px; display:flex; justify-content:space-between; font-family:var(--mono); font-size:11px; color:#999; letter-spacing:.06em; flex-wrap:wrap; gap:10px;}
+  @media (max-width:700px){.menu-bottom{padding:0 22px;}}
+
+  /* ===== HERO ===== */
+  .hero{position:relative; padding:180px 0 80px; overflow:hidden;}
+  .hero-vertical{position:absolute; right:18px; top:180px; writing-mode:vertical-rl; font-family:var(--mono); font-size:12px; letter-spacing:.3em; text-transform:uppercase; color:var(--muted-2); display:none;}
+  @media (min-width:1000px){.hero-vertical{display:block;}}
+  .hero-grid{display:grid; grid-template-columns:1fr 1fr; gap:50px; align-items:center;}
+  .hero-media{position:relative; display:flex; justify-content:center; align-items:center; aspect-ratio:4/5;}
+  .hero-photo{position:relative; z-index:1; width:78%; aspect-ratio:3/4; background:linear-gradient(160deg,var(--black),#2b2b2b); border-radius:6px; display:flex; align-items:flex-end; padding:26px; overflow:hidden;}
+  .hero-photo::before{content:"[ Your Photo Here ]"; position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-family:var(--mono); font-size:11px; color:var(--muted-2); text-transform:uppercase; letter-spacing:.1em;}
+  .hero-photo.has-photo::before{content:none;}
+  .hero-photo-tag{position:relative; z-index:1; font-family:var(--mono); font-size:11px; color:var(--white); letter-spacing:.08em; text-transform:uppercase;}
+  .hero-ring{position:absolute; border:1px solid var(--orange); border-radius:50%; will-change:transform;}
+  .hero-ring.r1{width:120%; height:120%; top:-10%; left:-10%; opacity:.5;}
+  .hero-ring.r2{width:60px; height:60px; bottom:6%; right:2%; background:var(--orange); border:none;}
+  .hero-text h1{font-size:clamp(34px,5.4vw,64px); margin-bottom:24px;}
+  .hero-text p{font-size:17px; color:var(--muted); max-width:420px; margin-bottom:34px;}
+  .hero-ctas{display:flex; gap:16px; flex-wrap:wrap;}
+  .hero-meta{display:flex; gap:28px; margin-top:56px; flex-wrap:wrap;}
+  .hero-meta div{font-family:var(--mono); font-size:12px; color:var(--muted-2);}
+  .hero-meta strong{display:block; font-family:var(--serif); font-size:30px; color:var(--text); font-style:normal;}
+
+  .ticker{border-top:1px solid var(--line); border-bottom:1px solid var(--line); overflow:hidden; padding:16px 0; margin-top:70px;}
+  .ticker-track{display:flex; gap:50px; width:max-content; animation:scrollTicker 26s linear infinite;}
+  @keyframes scrollTicker{from{transform:translateX(0);} to{transform:translateX(-50%);}}
+  .ticker-track span{font-family:var(--serif); font-style:italic; font-size:20px; color:var(--muted-2); white-space:nowrap;}
+  .ticker-track span em{color:var(--orange);}
+
+  /* ===== SECTION GENERAL ===== */
+  section{padding:120px 0;}
+  .section-head{display:flex; justify-content:space-between; align-items:flex-end; gap:30px; margin-bottom:64px; flex-wrap:wrap;}
+  .section-head h2{font-size:clamp(32px,5vw,58px);}
+  .section-head p{max-width:380px; color:var(--muted); font-size:15px;}
+
+  /* ===== ABOUT / PILLARS ===== */
+  .pillars{display:grid; grid-template-columns:repeat(3,1fr); gap:1px; background:var(--line); border:1px solid var(--line);}
+  .pillar{background:var(--surface); padding:48px 36px; transition:background .3s ease;}
+  .pillar:hover{background:var(--orange-tint);}
+  .pillar-num{font-family:var(--mono); color:var(--orange); font-size:12px; margin-bottom:26px; letter-spacing:.1em;}
+  .pillar h3{font-size:27px; margin-bottom:14px; font-style:italic;}
+  .pillar p{font-size:14px; color:var(--muted);}
+  @media (max-width:800px){.pillars{grid-template-columns:1fr;}}
+
+  /* ===== PROCESS LIST ===== */
+  .process-list{border-top:1px solid var(--line);}
+  .process-row{display:flex; align-items:center; gap:30px; padding:34px 0; border-bottom:1px solid var(--line); position:relative; overflow:hidden;}
+  .process-row::before{content:""; position:absolute; left:0; top:0; bottom:0; width:0; background:var(--black); transition:width .4s ease; z-index:0;}
+  .process-row:hover::before{width:100%;}
+  .process-row:hover{color:var(--white);}
+  .process-row:hover .row-num{color:var(--orange);}
+  .row-num{font-family:var(--mono); font-size:13px; color:var(--orange); width:50px; position:relative; z-index:1;}
+  .row-title{font-family:var(--serif); font-size:clamp(24px,4vw,42px); flex:1; position:relative; z-index:1;}
+  .row-desc{font-size:13px; color:var(--muted-2); max-width:260px; position:relative; z-index:1;}
+  .process-row:hover .row-desc{color:#ccc;}
+  .row-arrow{font-size:22px; position:relative; z-index:1; transition:transform .3s ease;}
+  .process-row:hover .row-arrow{transform:translateX(6px); color:var(--orange);}
+  @media (max-width:750px){.process-row{flex-wrap:wrap; gap:10px;} .row-desc{display:none;}}
+
+  /* ===== PROGRAMS / SHOP shared grid card ===== */
+  .programs-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:1px; background:var(--line); border:1px solid var(--line);}
+  .program-card{background:var(--surface); padding:38px 32px; display:flex; flex-direction:column; gap:16px; transition:background .3s ease;}
+  .program-card:hover{background:var(--orange-tint);}
+  .program-card h3{font-size:23px; font-style:italic;}
+  .program-card p{font-size:14px; color:var(--muted); flex-grow:1;}
+  .program-tag{font-family:var(--mono); font-size:11px; color:var(--orange); text-transform:uppercase; letter-spacing:.08em;}
+  @media (max-width:900px){.programs-grid{grid-template-columns:1fr 1fr;}}
+  @media (max-width:600px){.programs-grid{grid-template-columns:1fr;}}
+
+  /* ===== RANKS ===== */
+  .ranks-section{background:var(--black); color:var(--white);}
+  .ranks-section .eyebrow{color:var(--orange);}
+  .ranks-section .section-head p{color:#a49e8f;}
+  .rank-tiers{display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:var(--line-dark); border:1px solid var(--line-dark);}
+  .rank-card{background:var(--black-soft); padding:38px 28px; display:flex; flex-direction:column; gap:18px; transition:background .3s ease; position:relative;}
+  .rank-card:hover{background:#1f2022;}
+  .rank-card.featured::before{content:"MOST POPULAR"; position:absolute; top:16px; right:16px; background:var(--orange); color:var(--white); font-family:var(--mono); font-size:9px; letter-spacing:.08em; padding:4px 8px; border-radius:100px;}
+  .rank-plates{display:flex; align-items:center; gap:5px; height:44px;}
+  .rank-plates .p{border-radius:50%; border:2px solid var(--orange);}
+  .rank-name{font-size:27px; font-style:italic;}
+  .rank-price{font-family:var(--mono); font-size:28px; font-weight:700; color:var(--orange);}
+  .rank-price .unit{font-size:12px; color:var(--muted-2); font-weight:400;}
+  .rank-features{display:flex; flex-direction:column; gap:10px; flex-grow:1;}
+  .rank-features li{font-size:13px; color:#c9c4b7; display:flex; gap:8px;}
+  .rank-features li::before{content:"—"; color:var(--orange); flex-shrink:0;}
+  @media (max-width:900px){.rank-tiers{grid-template-columns:1fr 1fr;}}
+  @media (max-width:600px){.rank-tiers{grid-template-columns:1fr;}}
+
+  /* ===== RESULTS / LOG ===== */
+  .log-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:28px;}
+  .log-card{display:flex; flex-direction:column; gap:14px;}
+  .log-image{aspect-ratio:4/5; background:linear-gradient(160deg,#2b2b2b,var(--black)); border-radius:4px; overflow:hidden; position:relative;}
+  .log-image span{position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-family:var(--mono); font-size:10px; color:var(--muted-2); text-transform:uppercase; transition:transform .5s ease;}
+  .log-card:hover .log-image span{transform:scale(1.12);}
+  .log-card h3{font-size:18px; font-style:italic; margin:2px 0 4px;}
+  .log-card p{font-size:13px; color:var(--muted);}
+  .log-card .read{font-family:var(--mono); font-size:11px; color:var(--orange); text-transform:uppercase; letter-spacing:.06em; margin-top:6px;}
+  @media (max-width:1000px){.log-grid{grid-template-columns:1fr 1fr;}}
+  @media (max-width:560px){.log-grid{grid-template-columns:1fr;}}
+
+  /* ===== SHOP ===== */
+  .shop-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:1px; background:var(--line); border:1px solid var(--line);}
+  .shop-card{background:var(--surface); padding:32px; display:flex; flex-direction:column; gap:16px;}
+  .shop-card-top{display:flex; justify-content:space-between; gap:14px;}
+  .shop-card h3{font-size:20px; font-style:italic;}
+  .shop-card p{font-size:13px; color:var(--muted);}
+  .shop-controls{display:flex; gap:12px; align-items:center; margin-top:auto; flex-wrap:wrap;}
+  .tier-select{font-family:var(--mono); font-size:12px; text-transform:uppercase; border:1px solid var(--text); background:var(--surface); color:var(--text); padding:11px 14px; flex:1; min-width:130px; border-radius:100px;}
+  .shop-price{font-family:var(--mono); font-weight:700; font-size:17px; white-space:nowrap;}
+  @media (max-width:700px){.shop-grid{grid-template-columns:1fr;}}
+
+  /* ===== TECHNIQUE / VIDEO LIBRARY ===== */
+  .tech-filter{display:flex; gap:10px; flex-wrap:wrap; margin-bottom:36px;}
+  .tech-pill{font-family:var(--mono); font-size:11px; text-transform:uppercase; letter-spacing:.06em; padding:9px 16px; border:1px solid var(--text); border-radius:100px; transition:background .25s ease, color .25s ease;}
+  .tech-pill.active, .tech-pill:hover{background:var(--text); color:var(--cream);}
+  .tech-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:24px;}
+  .tech-card{border:1px solid var(--line); background:var(--cream); display:flex; flex-direction:column;}
+  .tech-card video{width:100%; aspect-ratio:9/16; object-fit:cover; background:#111; display:block;}
+  .tech-card-body{padding:18px 20px; display:flex; flex-direction:column; gap:6px;}
+  .tech-card h3{font-size:17px; font-style:italic;}
+  .tech-cat{font-family:var(--mono); font-size:10px; color:var(--orange); text-transform:uppercase; letter-spacing:.08em;}
+  .tech-empty{font-size:14px; color:var(--muted-2); padding:20px 0;}
+  @media (max-width:900px){.tech-grid{grid-template-columns:1fr 1fr;}}
+  @media (max-width:560px){.tech-grid{grid-template-columns:1fr;}}
+
+  /* ===== REVIEWS ===== */
+  .reviews-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:24px;}
+  .review-card{background:var(--surface); border:1px solid var(--line); padding:30px; display:flex; flex-direction:column; gap:14px;}
+  .review-stars{color:var(--orange); font-size:15px; letter-spacing:2px;}
+  .review-quote{font-family:var(--serif); font-style:italic; font-size:17px; flex-grow:1;}
+  .review-name{font-family:var(--mono); font-size:12px; text-transform:uppercase; letter-spacing:.05em;}
+  .review-program{font-family:var(--mono); font-size:11px; color:var(--orange); text-transform:uppercase;}
+  @media (max-width:900px){.reviews-grid{grid-template-columns:1fr 1fr;}}
+  @media (max-width:560px){.reviews-grid{grid-template-columns:1fr;}}
+
+  /* star picker for review form */
+  .star-picker{display:flex; gap:8px; font-size:26px; color:var(--line); margin:4px 0;}
+  .star-picker span{cursor:pointer; transition:color .15s ease, transform .15s ease;}
+  .star-picker span:hover{transform:scale(1.15);}
+  .star-picker span.active{color:var(--orange);}
+
+  /* ===== rotating badge (Get In Touch signature) ===== */
+  .badge{width:128px; height:128px; position:relative; flex-shrink:0; cursor:pointer;}
+  .badge svg{animation:spinBadge 16s linear infinite; width:100%; height:100%;}
+  @keyframes spinBadge{to{transform:rotate(360deg);}}
+  .badge-center{position:absolute; inset:0; display:flex; align-items:center; justify-content:center; pointer-events:none;}
+  .badge-center svg{animation:none; width:30px; height:30px;}
+  .contact-badge-row{display:flex; align-items:center; gap:24px; margin-top:34px;}
+  .contact-badge-row p{font-size:13px; color:var(--muted); max-width:220px;}
+
+  /* ===== CTA STRIP ===== */
+  .cta-strip{background:var(--orange); color:var(--white); text-align:center; padding:100px 32px;}
+  .cta-strip h2{font-size:clamp(28px,5vw,54px); max-width:820px; margin:0 auto 34px; font-style:italic;}
+
+  /* ===== CONTACT ===== */
+  .contact-grid{display:grid; grid-template-columns:1fr 1fr; gap:70px;}
+  .contact-info h3{font-size:32px; margin-bottom:20px; font-style:italic;}
+  .contact-info p{color:var(--muted); margin-bottom:26px; max-width:400px;}
+  .whatsapp-box{border:1px solid var(--text); padding:26px; display:flex; align-items:center; gap:18px; border-radius:8px;}
+  .whatsapp-box strong{display:block; font-family:var(--mono); font-size:14px;}
+  .contact-form{display:flex; flex-direction:column; gap:16px;}
+  .contact-form input, .contact-form textarea{border:none; border-bottom:1px solid var(--text); padding:14px 4px; font-family:var(--body); font-size:15px; background:transparent; width:100%; color:var(--text);}
+  .contact-form input:focus, .contact-form textarea:focus{outline:none; border-color:var(--orange);}
+
+  /* ===== FOOTER (big CTA style) ===== */
+  .footer-cta{background:var(--black); color:var(--white); text-align:center; padding:120px 32px 90px; position:relative; overflow:hidden;}
+  .footer-cta::before{content:""; position:absolute; width:520px; height:520px; border-radius:50%; border:1px solid var(--line-dark); top:-260px; left:50%; transform:translateX(-50%);}
+  .footer-cta h2{position:relative; font-size:clamp(30px,6vw,68px); max-width:760px; margin:0 auto 40px; font-style:italic;}
+  footer{background:var(--black); color:var(--white);}
+  .footer-bottom{display:flex; justify-content:space-between; padding:26px 0; font-family:var(--mono); font-size:11px; color:#888; flex-wrap:wrap; gap:14px; border-top:1px solid var(--line-dark);}
+  .footer-bottom a:hover{color:var(--orange);}
+  .social-links{display:flex; gap:18px; flex-wrap:wrap;}
+
+  /* ===== CART DRAWER ===== */
+  .overlay{position:fixed; inset:0; background:rgba(11,11,12,.5); z-index:300; opacity:0; pointer-events:none; transition:opacity .3s ease;}
+  .overlay.active{opacity:1; pointer-events:auto;}
+  .cart-drawer{position:fixed; top:0; right:0; bottom:0; width:min(420px,100%); background:var(--surface); color:var(--text); z-index:400; transform:translateX(100%); transition:transform .4s cubic-bezier(.65,0,.35,1); display:flex; flex-direction:column;}
+  .cart-drawer.active{transform:translateX(0);}
+  .cart-header{display:flex; justify-content:space-between; align-items:center; padding:26px 28px; border-bottom:1px solid var(--line);}
+  .cart-header h3{font-size:20px; font-style:italic;}
+  .cart-items{flex:1; overflow-y:auto; padding:20px 28px;}
+  .cart-item{display:flex; justify-content:space-between; gap:12px; padding:18px 0; border-bottom:1px solid var(--line);}
+  .cart-item-name{font-weight:700; font-size:14px;}
+  .cart-item-meta{font-family:var(--mono); font-size:11px; color:var(--muted-2); margin-top:4px;}
+  .cart-item-qty{display:flex; align-items:center; gap:10px; margin-top:8px;}
+  .qty-btn{border:1px solid var(--text); width:24px; height:24px; font-size:14px; display:flex; align-items:center; justify-content:center; border-radius:50%;}
+  .cart-item-price{font-family:var(--mono); font-weight:700; white-space:nowrap;}
+  .remove-btn{font-family:var(--mono); font-size:10px; color:var(--orange); text-transform:uppercase; margin-top:8px; text-decoration:underline;}
+  .cart-empty{text-align:center; color:var(--muted-2); padding:60px 20px; font-size:14px;}
+  .cart-footer{padding:24px 28px; border-top:1px solid var(--line);}
+  .cart-subtotal{display:flex; justify-content:space-between; font-family:var(--mono); font-weight:700; font-size:18px; margin-bottom:16px;}
+  .close-btn{font-size:22px; line-height:1; padding:8px;}
+
+  /* ===== MODALS (checkout / login / review) ===== */
+  .checkout-modal{position:fixed; inset:0; z-index:500; display:flex; align-items:center; justify-content:center; padding:24px; opacity:0; pointer-events:none; transition:opacity .3s ease;}
+  .checkout-modal.active{opacity:1; pointer-events:auto;}
+  .checkout-box{background:var(--surface); color:var(--text); max-width:520px; width:100%; max-height:90vh; overflow-y:auto; padding:40px; border-radius:10px;}
+  @media (max-width:600px){.checkout-box{padding:28px;}}
+  .checkout-box h3{font-size:26px; margin-bottom:6px; font-style:italic;}
+  .checkout-summary{border-top:1px solid var(--line); border-bottom:1px solid var(--line); margin:22px 0; padding:16px 0;}
+  .checkout-summary div{display:flex; justify-content:space-between; font-size:13px; padding:6px 0; font-family:var(--mono);}
+  .pay-box{background:var(--surface); border:1px solid var(--text); padding:20px; margin-bottom:20px; border-radius:8px;}
+  .pay-box .row{display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px dashed var(--line); font-family:var(--mono); font-size:13px; gap:10px;}
+  .pay-box .row:last-child{border-bottom:none;}
+  .pay-box .row strong{font-family:var(--body); text-transform:uppercase; font-size:11px; color:var(--muted-2); letter-spacing:.04em;}
+  .checkout-note{font-size:12px; color:var(--muted-2); margin-bottom:20px; line-height:1.6;}
+  .modal-field{width:100%; border:none; border-bottom:1px solid var(--text); padding:12px 2px; margin-bottom:16px; background:transparent; font-size:15px; color:var(--text);}
+  .modal-field:focus{outline:none; border-color:var(--orange);}
+
+  /* ===== DASHBOARD (dark, sidebar-based — Gym Fitness dashboard style) ===== */
+  :root{
+    --dash-bg:#0c0c0e;
+    --dash-sidebar:#0a0a0b;
+    --dash-card:#19191c;
+    --dash-card-2:#202024;
+    --dash-border:#2a2a2e;
+    --dash-text:#f2f2f3;
+    --dash-dim:#8d8d93;
+  }
+  .admin-overlay{position:fixed; inset:0; background:var(--dash-bg); z-index:900; display:none; overflow:hidden;}
+  .admin-overlay.active{display:flex;}
+
+  .dash-sidebar{width:230px; flex-shrink:0; background:var(--dash-sidebar); border-right:1px solid var(--dash-border); display:flex; flex-direction:column; padding:26px 16px; overflow-y:auto;}
+  .dash-logo-row{padding:0 8px; margin-bottom:26px;}
+  .dash-logo-row .logo{color:var(--dash-text); font-size:20px;}
+  .dash-logo-row .logo span{color:var(--orange);}
+  .dash-tag{font-family:var(--mono); font-size:10px; color:var(--dash-dim); text-transform:uppercase; letter-spacing:.06em; padding:0 8px; margin-bottom:24px; display:block;}
+  .dash-nav{display:flex; flex-direction:column; gap:3px; flex:1;}
+  .dash-nav-item{display:flex; align-items:center; gap:12px; padding:12px 14px; border-radius:9px; font-family:var(--body); font-size:13px; font-weight:500; color:#a6a6ab; background:none; border:none; cursor:pointer; text-align:left; width:100%; transition:background .2s ease, color .2s ease;}
+  .dash-nav-item svg{width:17px; height:17px; flex-shrink:0; opacity:.85;}
+  .dash-nav-item:hover{background:var(--dash-card); color:var(--dash-text);}
+  .dash-nav-item.active{background:var(--orange); color:#fff;}
+  .dash-nav-item.active svg{opacity:1;}
+  .dash-logout-row{margin-top:auto; padding-top:14px; border-top:1px solid var(--dash-border);}
+  .dash-logout-row button{width:100%; color:var(--dash-dim); border-color:var(--dash-border);}
+  .dash-logout-row button:hover{color:#fff; background:var(--dash-card); border-color:var(--dash-card);}
+
+  .dash-main{flex:1; overflow-y:auto; padding:30px 36px 90px; color:var(--dash-text);}
+  .dash-topbar{display:flex; justify-content:space-between; align-items:center; margin-bottom:26px;}
+  .dash-topbar h2{font-family:var(--serif); font-style:italic; font-size:28px; color:#fff;}
+
+  .admin-tab-panel{display:flex; flex-direction:column; gap:18px;}
+  .admin-row{background:var(--dash-card); border:1px solid var(--dash-border); border-radius:12px; padding:20px; display:flex; flex-direction:column; gap:10px; position:relative;}
+  .admin-row input, .admin-row textarea{width:100%; border:1px solid var(--dash-border); border-radius:6px; padding:10px 12px; font-size:14px; background:var(--dash-card-2); color:var(--dash-text);}
+  .admin-row textarea{resize:vertical; min-height:60px;}
+  .admin-delete{align-self:flex-end; font-family:var(--mono); font-size:11px; color:var(--orange); text-transform:uppercase; text-decoration:underline;}
+  .admin-tier-row{display:flex; align-items:center; gap:14px; background:var(--dash-card); border:1px solid var(--dash-border); border-radius:12px; padding:16px 20px;}
+  .admin-tier-row label{font-family:var(--mono); font-size:12px; text-transform:uppercase; width:110px; color:var(--dash-dim);}
+  .admin-tier-row input{border:1px solid var(--dash-border); border-radius:6px; padding:9px 12px; font-family:var(--mono); width:120px; background:var(--dash-card-2); color:var(--dash-text);}
+  .admin-review-row{background:var(--dash-card); border:1px solid var(--dash-border); border-radius:12px; padding:18px 20px; display:flex; flex-direction:column; gap:8px; color:var(--dash-text);}
+  .admin-review-top{display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap; font-size:13px;}
+  .admin-status{font-family:var(--mono); font-size:10px; text-transform:uppercase; padding:2px 8px; border-radius:100px; background:var(--orange-tint); color:var(--orange-deep);}
+  .admin-status.approved{background:#123d24; color:#4ade80;}
+  .admin-review-actions{display:flex; gap:10px; margin-top:4px;}
+  .admin-review-actions button{font-family:var(--mono); font-size:11px; text-transform:uppercase; text-decoration:underline; color:var(--dash-dim);}
+  .admin-actions-row{display:flex; gap:12px; flex-wrap:wrap; margin-top:6px;}
+
+  /* ===== REPORTS / ANALYTICS ===== */
+  .stat-cards{display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:16px;}
+  .stat-card{background:var(--dash-card); border:1px solid var(--dash-border); color:var(--dash-text); border-radius:14px; padding:20px; position:relative;}
+  .stat-card .stat-icon{width:32px; height:32px; border-radius:9px; background:var(--orange); display:flex; align-items:center; justify-content:center; margin-bottom:14px;}
+  .stat-card .stat-icon svg{width:16px; height:16px; color:#fff;}
+  .stat-card .label{font-family:var(--body); font-size:12px; color:var(--dash-dim);}
+  .stat-card .value{font-family:var(--serif); font-size:28px; font-style:italic; margin-top:6px; color:#fff;}
+  .stat-card.accent{background:linear-gradient(135deg,var(--orange),var(--orange-deep));}
+  .stat-card.accent .label{color:#ffe3d1;}
+  .stat-card.accent .stat-icon{background:rgba(255,255,255,.2);}
+  .report-section-title{font-family:var(--serif); font-style:italic; font-size:20px; margin:32px 0 16px; color:#fff;}
+  .dash-card{background:var(--dash-card); border:1px solid var(--dash-border); border-radius:14px; padding:24px;}
+  .bar-chart{display:flex; flex-direction:column; gap:10px;}
+  .bar-row{display:grid; grid-template-columns:70px 1fr 90px; align-items:center; gap:12px; font-size:12px;}
+  .bar-row .bar-label{font-family:var(--mono); color:var(--dash-dim);}
+  .bar-track{background:var(--dash-card-2); border-radius:4px; height:14px; overflow:hidden;}
+  .bar-fill{background:var(--orange); height:100%; border-radius:4px; transition:width .5s ease;}
+  .bar-fill.best{background:#fff;}
+  .bar-row .bar-value{font-family:var(--mono); text-align:right; color:var(--dash-text);}
+  .order-row{display:grid; grid-template-columns:1fr auto auto; gap:12px; align-items:center; background:var(--dash-card); border:1px solid var(--dash-border); border-radius:12px; padding:14px 18px; color:var(--dash-text);}
+  .order-row .order-meta{font-size:13px;}
+  .order-row .order-meta small{display:block; font-family:var(--mono); font-size:11px; color:var(--dash-dim); margin-top:2px;}
+  .order-status{font-family:var(--mono); font-size:10px; text-transform:uppercase; padding:3px 8px; border-radius:100px;}
+  .order-status.pending{background:var(--orange-tint); color:var(--orange-deep);}
+  .order-status.paid{background:#123d24; color:#4ade80;}
+  .order-status.cancelled{background:#2a2a2e; color:var(--dash-dim);}
+  .notes-box{width:100%; min-height:220px; border:1px solid var(--dash-border); border-radius:12px; padding:18px; font-size:14px; line-height:1.7; background:var(--dash-card); color:var(--dash-text); resize:vertical;}
+  .discount-card{background:var(--dash-card); border:1px solid var(--dash-border); border-radius:12px; padding:16px 18px; display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; color:var(--dash-text);}
+  .discount-code{font-family:var(--mono); font-weight:700; font-size:15px; color:var(--orange);}
+
+  /* ===== GOAL RING (circular progress, like "Your Daily Extra Goals") ===== */
+  .goal-ring-wrap{display:flex; align-items:center; gap:28px; flex-wrap:wrap;}
+  .goal-ring{width:150px; height:150px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; position:relative;}
+  .goal-ring::before{content:""; position:absolute; inset:10px; background:var(--dash-card); border-radius:50%;}
+  .goal-ring-value{position:relative; z-index:1; font-family:var(--serif); font-style:italic; font-size:30px; color:#fff;}
+  .goal-edit-row{display:flex; align-items:center; gap:10px; font-size:13px; color:var(--dash-dim); flex-wrap:wrap;}
+  .goal-edit-row input{width:110px; border:1px solid var(--dash-border); background:var(--dash-card-2); color:var(--dash-text); border-radius:6px; padding:8px 10px; font-family:var(--mono);}
+
+  /* ===== CLIENT DASHBOARD (reuses dash-shell look) ===== */
+  #clientOverlay .dash-main{max-width:760px; margin:0 auto; width:100%;}
+  #clientOverlay .admin-tier-row select, #clientOverlay .admin-tier-row input.modal-field{background:var(--dash-card-2); color:var(--dash-text); border:1px solid var(--dash-border); border-radius:6px; padding:9px 12px; font-family:var(--body);}
+
+  /* ===== REPORTS DASHBOARD — two column layout (Gym Fitness dashboard style) ===== */
+  .dash-grid{display:grid; grid-template-columns:2fr 1.05fr; gap:20px; align-items:start;}
+  @media (max-width:900px){ .dash-grid{grid-template-columns:1fr;} }
+  .dash-col{display:flex; flex-direction:column; gap:18px; min-width:0;}
+  .mini-stat-row{display:flex; gap:14px;}
+  .mini-stat{flex:1; background:var(--dash-card); border:1px solid var(--dash-border); border-radius:14px; padding:16px 18px; color:var(--dash-text);}
+  .mini-stat .label{font-family:var(--mono); font-size:10px; text-transform:uppercase; letter-spacing:.06em; color:var(--dash-dim);}
+  .mini-stat .value{font-family:var(--serif); font-style:italic; font-size:22px; color:#fff; margin-top:6px;}
+
+  /* ===== TRAINER / ATHLETE PROFILE (public site card) ===== */
+  .coach-section{background:var(--surface); border-top:1px solid var(--line); border-bottom:1px solid var(--line);}
+  .coach-grid{display:grid; grid-template-columns:.85fr 1.15fr; gap:60px; align-items:center;}
+  @media (max-width:860px){ .coach-grid{grid-template-columns:1fr; gap:36px;} }
+  .coach-photo{position:relative; aspect-ratio:3/4; border-radius:6px; background:linear-gradient(160deg,var(--black),#2b2b2b); background-size:cover; background-position:center; overflow:hidden; display:flex; align-items:flex-end; padding:22px;}
+  .coach-photo::before{content:"[ Coach Photo ]"; position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-family:var(--mono); font-size:11px; color:var(--muted-2); text-transform:uppercase; letter-spacing:.1em;}
+  .coach-photo.has-photo::before{content:none;}
+  .coach-photo-tag{position:relative; z-index:1; font-family:var(--mono); font-size:11px; color:var(--white); letter-spacing:.08em; text-transform:uppercase;}
+  .discipline-badge{display:inline-flex; align-items:center; gap:8px; font-family:var(--mono); font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:var(--orange); border:1px solid var(--orange); border-radius:100px; padding:6px 14px; margin-bottom:18px;}
+  .coach-name-row{display:flex; align-items:baseline; gap:14px; flex-wrap:wrap; margin-bottom:8px;}
+  .coach-name-row h2{font-size:clamp(30px,4vw,44px);}
+  .coach-age{font-family:var(--mono); font-size:13px; color:var(--muted-2);}
+  .coach-bio{color:var(--muted-2); margin:14px 0 28px; max-width:52ch;}
+  .coach-stats-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(110px,1fr)); gap:0; border-top:1px solid var(--line); border-left:1px solid var(--line);}
+  .coach-stat{border-right:1px solid var(--line); border-bottom:1px solid var(--line); padding:16px 18px;}
+  .coach-stat .n{font-family:var(--serif); font-style:italic; font-size:26px; display:block;}
+  .coach-stat .l{font-family:var(--mono); font-size:10px; text-transform:uppercase; letter-spacing:.06em; color:var(--muted-2); margin-top:4px; display:block;}
+  .coach-achievements{margin-top:26px; display:flex; flex-direction:column; gap:8px;}
+  .coach-achievements li{list-style:none; padding-left:22px; position:relative; font-size:14px; color:var(--text);}
+  .coach-achievements li::before{content:"—"; position:absolute; left:0; color:var(--orange);}
+
+  /* ===== CHECKOUT PROMO CODE ===== */
+  .promo-row{display:flex; gap:8px; margin-bottom:6px;}
+  .promo-row input{flex:1;}
+  .promo-msg{font-family:var(--mono); font-size:11px; min-height:16px; margin:0 0 16px;}
+
+  /* ===== ANNOUNCEMENT BAR ===== */
+  :root{ --announce-offset:0px; }
+  .announcement-bar{position:fixed; top:0; left:0; right:0; z-index:250; background:var(--orange); color:#fff; display:flex; align-items:center; justify-content:center; padding:10px 46px; font-family:var(--mono); font-size:12px; letter-spacing:.04em; text-align:center; line-height:1.5;}
+  .announcement-close{background:none; border:none; color:#fff; font-size:14px; cursor:pointer; position:absolute; right:16px; top:50%; transform:translateY(-50%); opacity:.85; padding:4px;}
+  html[dir="rtl"] .announcement-close{right:auto; left:16px;}
+  .announcement-close:hover{opacity:1;}
+
+  /* ===== GALLERY ===== */
+  .gallery-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:16px;}
+  .gallery-item{position:relative; aspect-ratio:1; border-radius:6px; overflow:hidden; background:var(--surface);}
+  .gallery-item img{width:100%; height:100%; object-fit:cover; display:block;}
+  .gallery-item .cap{position:absolute; left:0; right:0; bottom:0; background:linear-gradient(to top, rgba(0,0,0,.7), transparent); color:#fff; font-family:var(--mono); font-size:11px; padding:18px 12px 8px;}
+  .admin-gallery-item{position:relative; border-radius:8px; overflow:hidden; aspect-ratio:1; background:var(--dash-card-2); border:1px solid var(--dash-border);}
+  .admin-gallery-item img{width:100%; height:100%; object-fit:cover; display:block;}
+  .admin-gallery-item button{position:absolute; top:6px; right:6px; background:rgba(0,0,0,.6); color:#fff; border:none; border-radius:100px; width:26px; height:26px; cursor:pointer; font-size:13px;}
+
+  /* ===== PARTNERS TICKER ===== */
+  #partners{padding:60px 0;}
+
+  /* ===== TRAINER PROGRESS LOG ===== */
+  .progress-log-row{display:grid; grid-template-columns:1fr 1fr 1fr auto; gap:10px; align-items:center;}
+  @media (max-width:700px){ .progress-log-row{grid-template-columns:1fr 1fr;} }
+  .progress-entry{display:flex; justify-content:space-between; align-items:center; background:var(--dash-card); border:1px solid var(--dash-border); border-radius:10px; padding:12px 16px; color:var(--dash-text); font-size:13px;}
+  .progress-entry .pe-meta small{display:block; color:var(--dash-dim); font-family:var(--mono); font-size:11px; margin-top:2px;}
+
+  /* ===== MOBILE FIXES ===== */
+  @media (max-width:480px){
+    .hero{padding:150px 0 60px;}
+    section{padding:80px 0;}
+    .hero-ctas{flex-direction:column; align-items:stretch;}
+    .hero-meta{gap:16px;}
+    .contact-badge-row{flex-direction:column; align-items:flex-start; gap:16px;}
+    .footer-bottom{flex-direction:column; align-items:flex-start;}
+    .admin-body{padding:20px 18px 60px;}
+    .admin-overlay.active{flex-direction:column;}
+    .dash-sidebar{width:100%; flex-direction:row; overflow-x:auto; padding:14px 12px; border-right:none; border-bottom:1px solid var(--dash-border);}
+    .dash-logo-row, .dash-tag{display:none;}
+    .dash-nav{flex-direction:row; flex:none;}
+    .dash-nav-item{white-space:nowrap; padding:9px 12px;}
+    .dash-nav-item span{display:none;}
+    .dash-logout-row{margin-top:0; padding-top:0; border-top:none; margin-left:auto;}
+    .dash-main{padding:20px 18px 60px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="announcement-bar" id="announcementBar" style="display:none;">
+  <span id="announcementText"></span>
+  <button class="announcement-close" onclick="dismissAnnouncement()" aria-label="Dismiss">✕</button>
+</div>
+
+
+<div class="scroll-progress" id="scrollProgress"></div>
+
+<header id="siteHeader">
+  <div class="nav">
+    <a href="#home" class="logo split-chars" id="siteLogo" data-text="EVO FIT">EVO <span>FIT</span></a>
+    <div class="nav-right">
+      <button class="cart-btn" onclick="toggleLang()" aria-label="Toggle language" id="langBtn" title="العربية">
+        <span style="font-family:var(--mono); font-size:12px; letter-spacing:.04em;">EN / AR</span>
+      </button>
+      <button class="cart-btn" onclick="toggleNight()" aria-label="Toggle night mode" id="nightBtn" title="Night mode">
+        <svg id="nightIcon" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
+      <button class="cart-btn" onclick="openClientArea()" aria-label="My account" id="accountBtn" title="My Account">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      </button>
+      <button class="cart-btn" onclick="toggleCart(true)" aria-label="Open cart">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+        <span class="cart-count" id="cartCount">0</span>
+      </button>
+      <button class="menu-toggle" onclick="toggleMenu(true)">
+        MENU
+        <span class="bars"><span></span><span></span><span></span></span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- ===== FULL SCREEN MENU ===== -->
+<div class="menu-overlay" id="menuOverlay">
+  <div class="menu-top">
+    <div class="logo">EVO <span style="color:var(--orange);">FIT</span></div>
+    <button class="menu-close" onclick="toggleMenu(false)">CLOSE ✕</button>
+  </div>
+  <nav class="menu-links">
+    <a href="#home" onclick="toggleMenu(false)"><span class="n">01/</span><span data-i18n="nav_home">Home</span></a>
+    <a href="#about" onclick="toggleMenu(false)"><span class="n">02/</span><span data-i18n="nav_about">About</span></a>
+    <a href="#programs" onclick="toggleMenu(false)"><span class="n">03/</span><span data-i18n="nav_programs">Programs</span></a>
+    <a href="#ranks" onclick="toggleMenu(false)"><span class="n">04/</span><span data-i18n="nav_ranks">Ranks</span></a>
+    <a href="#technique" onclick="toggleMenu(false)"><span class="n">05/</span><span data-i18n="nav_technique">Technique</span></a>
+    <a href="#shop" onclick="toggleMenu(false)"><span class="n">06/</span><span data-i18n="nav_shop">Shop</span></a>
+    <a href="#contact" onclick="toggleMenu(false)"><span class="n">07/</span><span data-i18n="nav_contact">Contact</span></a>
+  </nav>
+  <div class="menu-bottom">
+    <div>Dammam, Saudi Arabia</div>
+    <div>Instagram / WhatsApp / TikTok</div>
+  </div>
+</div>
+
+<!-- ===== HERO ===== -->
+<section class="hero" id="home">
+  <div class="hero-vertical" data-parallax="0.06" data-i18n="hero_vertical">Training · Nutrition · Powerlifting · Health —</div>
+  <div class="wrap">
+    <div class="hero-grid">
+      <div class="hero-text">
+        <p class="eyebrow reveal" data-i18n="hero_eyebrow">Coach · Dammam, KSA</p>
+        <h1 id="heroTitle" class="split">I coach strength &amp;<br><em>powerlifting</em><br>built to evolve you</h1>
+        <p class="reveal reveal-d2" data-i18n="hero_sub">Coaching by [Your Name] — training, nutrition, and powerlifting programs ranked from Standard to Elite, built around where you are and where you want to go.</p>
+        <div class="hero-ctas reveal reveal-d3">
+          <a href="#programs" class="btn btn-primary" data-i18n="hero_cta1">View Programs</a>
+          <a href="#ranks" class="btn btn-outline" data-i18n="hero_cta2">See Ranks</a>
+        </div>
+        <div class="hero-meta reveal reveal-d4">
+          <div><strong>8+</strong><span data-i18n="hero_meta1">Years Coaching</span></div>
+          <div><strong>300+</strong><span data-i18n="hero_meta2">Athletes Trained</span></div>
+          <div><strong>50+</strong><span data-i18n="hero_meta3">Meet PRs Set</span></div>
+        </div>
+      </div>
+      <div class="hero-media reveal reveal-d2">
+        <div class="hero-ring r1" id="ring1" data-parallax="0.12"></div>
+        <div class="hero-photo" data-parallax="-0.08">
+          <span class="hero-photo-tag">EVO FIT — Coach</span>
+        </div>
+        <div class="hero-ring r2" id="ring2" data-parallax="0.22"></div>
+      </div>
+    </div>
+  </div>
+  <div class="ticker">
+    <div class="ticker-track">
+      <span>Training <em>·</em> Nutrition <em>·</em> Powerlifting <em>·</em> Health &amp; Conditioning <em>·</em> Standard <em>·</em> Gold <em>·</em> Diamond <em>·</em> Elite <em>·</em></span>
+      <span>Training <em>·</em> Nutrition <em>·</em> Powerlifting <em>·</em> Health &amp; Conditioning <em>·</em> Standard <em>·</em> Gold <em>·</em> Diamond <em>·</em> Elite <em>·</em></span>
+    </div>
+  </div>
+</section>
+
+<!-- ===== COACH / ATHLETE PROFILE ===== -->
+<section id="coach" class="coach-section">
+  <div class="wrap">
+    <div class="coach-grid">
+      <div class="coach-photo reveal" id="coachPhoto">
+        <span class="coach-photo-tag" id="coachPhotoTag">EVO FIT — Coach</span>
+      </div>
+      <div class="reveal reveal-d2">
+        <p class="eyebrow" data-i18n="coach_eyebrow">Meet your coach</p>
+        <span class="discipline-badge" id="coachDiscipline">Powerlifting</span>
+        <div class="coach-name-row">
+          <h2 id="coachName">[Your Name]</h2>
+          <span class="coach-age" id="coachAge"></span>
+        </div>
+        <p class="coach-bio" id="coachBio">Coaching by [Your Name] — training, nutrition, and powerlifting programs built around where you are and where you want to go.</p>
+        <div class="coach-stats-grid" id="coachStatsGrid"></div>
+        <ul class="coach-achievements" id="coachAchievements"></ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== ABOUT ===== -->
+<section id="about">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <div>
+        <p class="eyebrow" data-i18n="about_eyebrow">About the coach</p>
+        <h2 class="split" data-i18n="about_h2" data-i18n-html="1">Three ways I<br>get you there</h2>
+      </div>
+      <p data-i18n="about_sub">Every program is coached, not templated — built from your training history, your schedule, and your goals in the gym.</p>
+    </div>
+    <div class="pillars">
+      <div class="pillar reveal reveal-d1">
+        <div class="pillar-num">TRAIN</div>
+        <h3 data-i18n="pillar1_h">Strength you can measure</h3>
+        <p data-i18n="pillar1_p">Structured strength and conditioning built around progressive overload — programmed week to week, not guessed at.</p>
+      </div>
+      <div class="pillar reveal reveal-d2">
+        <div class="pillar-num">FUEL</div>
+        <h3 data-i18n="pillar2_h">Nutrition that fits your life</h3>
+        <p data-i18n="pillar2_p">Macros and meal structure built around your schedule and food preferences — sustainable, not restrictive.</p>
+      </div>
+      <div class="pillar reveal reveal-d3">
+        <div class="pillar-num">PERFORM</div>
+        <h3 data-i18n="pillar3_h">Powerlifting, peaked right</h3>
+        <p data-i18n="pillar3_p">Squat, bench, and deadlift progression with real peaking protocols, built for the platform and for meet day.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== PROCESS ===== -->
+<section style="background:var(--surface); border-top:1px solid var(--line); border-bottom:1px solid var(--line);">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <div>
+        <p class="eyebrow" data-i18n="process_eyebrow">The process</p>
+        <h2 class="split" data-i18n="process_h2" data-i18n-html="1">How we get<br>you there</h2>
+      </div>
+      <p data-i18n="process_sub">Four steps, repeated every training block, so your program keeps moving with you.</p>
+    </div>
+    <div class="process-list reveal">
+      <a class="process-row" href="#contact"><span class="row-num">01</span><span class="row-title" data-i18n="process1_title">Assess</span><span class="row-desc" data-i18n="process1_desc">Baseline lifts, mobility, and goals</span><span class="row-arrow">→</span></a>
+      <a class="process-row" href="#programs"><span class="row-num">02</span><span class="row-title" data-i18n="process2_title">Program</span><span class="row-desc" data-i18n="process2_desc">A plan built for your rank and focus</span><span class="row-arrow">→</span></a>
+      <a class="process-row" href="#ranks"><span class="row-num">03</span><span class="row-title" data-i18n="process3_title">Train</span><span class="row-desc" data-i18n="process3_desc">Coached execution with real feedback</span><span class="row-arrow">→</span></a>
+      <a class="process-row" href="#shop"><span class="row-num">04</span><span class="row-title" data-i18n="process4_title">Adapt</span><span class="row-desc" data-i18n="process4_desc">Plans evolve as your numbers do</span><span class="row-arrow">→</span></a>
+    </div>
+  </div>
+</section>
+
+<!-- ===== PROGRAMS ===== -->
+<section id="programs">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <div>
+        <p class="eyebrow" data-i18n="programs_eyebrow">What I coach</p>
+        <h2 class="split" data-i18n="programs_h2">Programs</h2>
+      </div>
+      <p data-i18n="programs_sub">Pick a single focus, or combine training and nutrition for the complete approach.</p>
+    </div>
+    <div class="programs-grid reveal" id="programsGrid"></div>
+  </div>
+</section>
+
+<!-- ===== RANKS ===== -->
+<section id="ranks" class="ranks-section">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <div>
+        <p class="eyebrow" data-i18n="ranks_eyebrow">Coaching tiers</p>
+        <h2 class="split" data-i18n="ranks_h2">Rank up</h2>
+      </div>
+      <p data-i18n="ranks_sub">Every tier loads more onto the bar — more check-ins, more direct access, more customization.</p>
+    </div>
+    <div class="rank-tiers reveal">
+      <div class="rank-card">
+        <div class="rank-plates"><div class="p" style="width:26px;height:26px;"></div></div>
+        <div class="rank-name" data-i18n="rank_standard_name">Standard</div>
+        <div class="rank-price"><span id="rp-Standard">199</span><span class="unit" data-i18n="unit_per_month"> SAR/mo</span></div>
+        <ul class="rank-features">
+          <li data-i18n="rank_standard_f1">One program of your choice</li>
+          <li data-i18n="rank_standard_f2">Monthly plan updates</li>
+          <li data-i18n="rank_standard_f3">App-based tracking</li>
+          <li data-i18n="rank_standard_f4">Community support channel</li>
+        </ul>
+        <button class="btn btn-outline-light btn-block" data-i18n="rank_standard_btn" onclick="addFromRank('Standard')">Select Standard</button>
+      </div>
+      <div class="rank-card featured">
+        <div class="rank-plates"><div class="p" style="width:26px;height:26px;"></div><div class="p" style="width:34px;height:34px;"></div></div>
+        <div class="rank-name" data-i18n="rank_gold_name">Gold</div>
+        <div class="rank-price"><span id="rp-Gold">349</span><span class="unit" data-i18n="unit_per_month"> SAR/mo</span></div>
+        <ul class="rank-features">
+          <li data-i18n="rank_gold_f1">Training + Nutrition combined</li>
+          <li data-i18n="rank_gold_f2">Bi-weekly plan updates</li>
+          <li data-i18n="rank_gold_f3">Weekly form-check videos</li>
+          <li data-i18n="rank_gold_f4">Direct chat access to coach</li>
+        </ul>
+        <button class="btn btn-primary btn-block" data-i18n="rank_gold_btn" onclick="addFromRank('Gold')">Select Gold</button>
+      </div>
+      <div class="rank-card">
+        <div class="rank-plates"><div class="p" style="width:26px;height:26px;"></div><div class="p" style="width:34px;height:34px;"></div><div class="p" style="width:42px;height:42px;"></div></div>
+        <div class="rank-name" data-i18n="rank_diamond_name">Diamond</div>
+        <div class="rank-price"><span id="rp-Diamond">549</span><span class="unit" data-i18n="unit_per_month"> SAR/mo</span></div>
+        <ul class="rank-features">
+          <li data-i18n="rank_diamond_f1">Everything in Gold</li>
+          <li data-i18n="rank_diamond_f2">Weekly 1:1 check-ins</li>
+          <li data-i18n="rank_diamond_f3">Custom meal &amp; recipe planning</li>
+          <li data-i18n="rank_diamond_f4">Priority WhatsApp access</li>
+          <li data-i18n="rank_diamond_f5">Powerlifting meet-prep add-on</li>
+        </ul>
+        <button class="btn btn-outline-light btn-block" data-i18n="rank_diamond_btn" onclick="addFromRank('Diamond')">Select Diamond</button>
+      </div>
+      <div class="rank-card">
+        <div class="rank-plates"><div class="p" style="width:26px;height:26px;"></div><div class="p" style="width:34px;height:34px;"></div><div class="p" style="width:42px;height:42px;"></div><div class="p" style="width:42px;height:42px;"></div></div>
+        <div class="rank-name" data-i18n="rank_elite_name">Elite</div>
+        <div class="rank-price"><span id="rp-Elite">899</span><span class="unit" data-i18n="unit_per_month"> SAR/mo</span></div>
+        <ul class="rank-features">
+          <li data-i18n="rank_elite_f1">Everything in Diamond</li>
+          <li data-i18n="rank_elite_f2">Daily direct coach access</li>
+          <li data-i18n="rank_elite_f3">Fully custom program, no templates</li>
+          <li data-i18n="rank_elite_f4">Monthly video call session</li>
+          <li data-i18n="rank_elite_f5">Priority scheduling &amp; revisions</li>
+        </ul>
+        <button class="btn btn-outline-light btn-block" data-i18n="rank_elite_btn" onclick="addFromRank('Elite')">Select Elite</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== TECHNIQUE / EXERCISE VIDEO LIBRARY ===== -->
+<section id="technique" style="background:var(--surface); border-top:1px solid var(--line); border-bottom:1px solid var(--line);">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <div>
+        <p class="eyebrow" data-i18n="tech_eyebrow">Watch &amp; learn</p>
+        <h2 class="split" data-i18n="tech_h2">Technique library</h2>
+      </div>
+      <p data-i18n="tech_sub">Short videos on the lifts and movements you'll see in your program — form cues, common mistakes, and setup.</p>
+    </div>
+    <div class="tech-filter reveal" id="techFilter"></div>
+    <div class="tech-grid reveal" id="techGrid"></div>
+  </div>
+</section>
+
+<!-- ===== RESULTS / LOG ===== -->
+<section>
+  <div class="wrap">
+    <div class="section-head reveal">
+      <div>
+        <p class="eyebrow" data-i18n="log_eyebrow">From the log</p>
+        <h2 class="split" data-i18n="log_h2">Training notes</h2>
+      </div>
+      <p data-i18n="log_sub">Short reads on the things that actually move the needle.</p>
+    </div>
+    <div class="log-grid reveal">
+      <div class="log-card">
+        <div class="log-image"><span>Progressive Overload</span></div>
+        <h3>Progressive Overload, Explained</h3>
+        <p>Why small, tracked increases beat random hard days every time.</p>
+        <span class="read hlink" data-i18n="read_more">Read more →</span>
+      </div>
+      <div class="log-card">
+        <div class="log-image"><span>Nutrition</span></div>
+        <h3>Why Most Diets Fail</h3>
+        <p>It's rarely the macros — it's the plan not fitting your life.</p>
+        <span class="read hlink" data-i18n="read_more">Read more →</span>
+      </div>
+      <div class="log-card">
+        <div class="log-image"><span>Powerlifting</span></div>
+        <h3>Peaking For Your First Meet</h3>
+        <p>How to arrive at the platform strong, fresh, and confident.</p>
+        <span class="read hlink" data-i18n="read_more">Read more →</span>
+      </div>
+      <div class="log-card">
+        <div class="log-image"><span>Recovery</span></div>
+        <h3>Recovery Isn't Optional</h3>
+        <p>Sleep, stress, and deload weeks are part of the program too.</p>
+        <span class="read hlink" data-i18n="read_more">Read more →</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== GALLERY ===== -->
+<section id="gallery" style="display:none;">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <div>
+        <p class="eyebrow" data-i18n="gallery_eyebrow">A look inside</p>
+        <h2 class="split" data-i18n="gallery_h2">Gallery</h2>
+      </div>
+    </div>
+    <div class="gallery-grid reveal" id="galleryGrid"></div>
+  </div>
+</section>
+
+<!-- ===== SHOP ===== -->
+<section id="shop" style="background:var(--surface); border-top:1px solid var(--line); border-bottom:1px solid var(--line);">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <div>
+        <p class="eyebrow" data-i18n="shop_eyebrow">Build your order</p>
+        <h2 class="split" data-i18n="shop_h2">Shop</h2>
+      </div>
+      <p data-i18n="shop_sub">Choose a program, pick a tier, add it to your cart, then check out to get payment instructions.</p>
+    </div>
+    <div class="shop-grid reveal" id="shopGrid"></div>
+  </div>
+</section>
+
+<!-- ===== REVIEWS ===== -->
+<section id="reviews">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <div>
+        <p class="eyebrow" data-i18n="reviews_eyebrow">Client results</p>
+        <h2 class="split" data-i18n="reviews_h2">What clients say</h2>
+      </div>
+      <p data-i18n="reviews_sub">Real feedback from athletes training on EVO FIT programs.</p>
+    </div>
+    <div class="reviews-grid reveal" id="reviewsGrid"></div>
+  </div>
+</section>
+
+<!-- ===== PARTNERS / SPONSORS TICKER ===== -->
+<section id="partners" style="display:none;">
+  <div class="wrap">
+    <div class="section-head reveal" style="margin-bottom:24px;">
+      <div>
+        <p class="eyebrow" data-i18n="partners_eyebrow">Trusted by</p>
+        <h2 class="split" data-i18n="partners_h2" style="font-size:28px;">Our sponsors & partners</h2>
+      </div>
+    </div>
+  </div>
+  <div class="ticker" style="margin-top:0;">
+    <div class="ticker-track" id="partnersTickerTrack"></div>
+  </div>
+</section>
+
+<!-- ===== CTA STRIP ===== -->
+<div class="cta-strip reveal">
+  <h2 data-i18n="cta_strip_h2">Ready to rank up? Pick your program and let's get to work.</h2>
+  <a href="#shop" class="btn btn-outline-light" data-i18n="cta_strip_btn">Start Your Order</a>
+</div>
+
+<!-- ===== CONTACT ===== -->
+<section id="contact">
+  <div class="wrap contact-grid">
+    <div class="contact-info reveal">
+      <p class="eyebrow" data-i18n="contact_eyebrow">Get in touch</p>
+      <h3 data-i18n="contact_h3">Questions before you order?</h3>
+      <p data-i18n="contact_sub">Message me directly on WhatsApp — I'll help you pick the right program and tier for your goals.</p>
+      <div class="whatsapp-box">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="#FF4D00"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.1l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1-.2.2-.7.8-.8.9-.2.2-.3.2-.5.1-.2-.1-1-.4-1.9-1.2-.7-.6-1.2-1.4-1.3-1.6-.1-.2 0-.4.1-.5l.4-.4c.1-.1.2-.3.3-.4.1-.2 0-.3 0-.5s-.6-1.5-.9-2c-.2-.5-.4-.4-.6-.4h-.5c-.2 0-.5.1-.7.3-.2.2-.9.9-.9 2.2s1 2.5 1.1 2.7c.1.2 2 3 4.7 4.2.7.3 1.2.5 1.6.6.7.2 1.3.2 1.8.1.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2-.1-.1-.3-.2-.5-.3z"/></svg>
+        <div>
+          <strong id="waDisplay">+966 XX XXX XXXX</strong>
+          <span style="font-size:12px; color:var(--muted-2);" data-i18n="contact_wa_hint">Tap "Message on WhatsApp" below or use this number</span>
+        </div>
+      </div>
+      <div class="contact-badge-row">
+        <a href="#" id="waLink" class="btn btn-primary magnetic" data-i18n="contact_wa_btn">Message on WhatsApp</a>
+        <div class="badge" id="badgeBtn" title="Message on WhatsApp">
+          <svg viewBox="0 0 200 200">
+            <defs><path id="badgeCircle" d="M100,100 m-80,0 a80,80 0 1,1 160,0 a80,80 0 1,1 -160,0"/></defs>
+            <text font-family="Space Mono, monospace" font-size="12" letter-spacing="3" fill="#0B0B0C">
+              <textPath href="#badgeCircle">AVAILABLE FOR COACHING • GET IN TOUCH • AVAILABLE FOR COACHING •</textPath>
+            </text>
+          </svg>
+          <div class="badge-center">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#FF4D00" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </div>
+        </div>
+      </div>
+    </div>
+    <form class="contact-form reveal reveal-d2" onsubmit="event.preventDefault(); alert('Thanks — replace this with a real form handler or just message me on WhatsApp.');">
+      <input type="text" placeholder="Full name" data-i18n-ph="form_name" required>
+      <input type="email" placeholder="Email" data-i18n-ph="form_email" required>
+      <input type="text" placeholder="Phone / WhatsApp" data-i18n-ph="form_phone" required>
+      <textarea rows="4" placeholder="Tell me about your goals" data-i18n-ph="form_goals"></textarea>
+      <button type="submit" class="btn btn-primary" style="align-self:flex-start;" data-i18n="form_send">Send Message</button>
+    </form>
+  </div>
+</section>
+
+<!-- ===== FOOTER BIG CTA ===== -->
+<div class="footer-cta reveal">
+  <h2 data-i18n="footer_cta_h2">Let's evolve your strength together.</h2>
+  <a href="#shop" class="btn btn-primary magnetic" data-i18n="footer_cta_btn">Start Your Order</a>
+</div>
+
+<footer>
+  <div class="wrap footer-bottom">
+    <span data-i18n="footer_copy">EVO FIT © 2026 · Coaching by [Your Name] · Dammam, Saudi Arabia</span>
+    <div class="social-links">
+      <a class="hlink" href="#">Instagram</a>
+      <a class="hlink" href="#">TikTok</a>
+      <a class="hlink" href="#">WhatsApp</a>
+      <a class="hlink" href="#" onclick="openLogin(); return false;" data-i18n="footer_coach_login">Coach Login</a>
+    </div>
+  </div>
+</footer>
+
+<!-- ===== CART DRAWER ===== -->
+<div class="overlay" id="overlay" onclick="toggleCart(false); closeCheckout(); closeLogin(); closeReviewModal(); closeClientLogin();"></div>
+<div class="cart-drawer" id="cartDrawer">
+  <div class="cart-header">
+    <h3 data-i18n="cart_title">Your Cart</h3>
+    <button class="close-btn" onclick="toggleCart(false)" aria-label="Close cart">×</button>
+  </div>
+  <div class="cart-items" id="cartItems"></div>
+  <div class="cart-footer">
+    <div class="cart-subtotal"><span data-i18n="cart_subtotal">Subtotal</span><span id="cartSubtotal">0 SAR</span></div>
+    <button class="btn btn-primary btn-block" onclick="openCheckout()" data-i18n="cart_checkout">Proceed to Checkout</button>
+  </div>
+</div>
+
+<!-- ===== CHECKOUT MODAL ===== -->
+<div class="checkout-modal" id="checkoutModal">
+  <div class="checkout-box">
+    <p class="eyebrow" data-i18n="checkout_eyebrow">Final step</p>
+    <h3 data-i18n="checkout_h3">Complete your order</h3>
+    <div class="checkout-summary" id="checkoutSummary"></div>
+    <div class="promo-row">
+      <input class="modal-field" style="margin-bottom:0;" id="promoCodeInput" placeholder="Promo code (optional)" data-i18n-ph="promo_ph">
+      <button class="btn btn-outline btn-sm" onclick="applyPromoCode()" data-i18n="promo_apply">Apply</button>
+    </div>
+    <p class="promo-msg" id="promoMsg"></p>
+    <div class="pay-box">
+      <div class="row"><strong data-i18n="pay_bank">Bank</strong><span>Barq</span></div>
+      <div class="row"><strong data-i18n="pay_account">Account Name</strong><span>Abdulrahman Suliman Altayeb</span></div>
+      <div class="row"><strong data-i18n="pay_iban">IBAN</strong><span>SA12 3010 0991 1026 3348 1017</span></div>
+      <div class="row"><strong data-i18n="pay_whatsapp">WhatsApp</strong><span>+966 XX XXX XXXX</span></div>
+    </div>
+    <p class="checkout-note" data-i18n="checkout_note">Transfer the total shown above to the IBAN, then tap the button below — it opens WhatsApp with your order pre-filled. Send your payment receipt in that chat and I'll activate your program.</p>
+    <a href="#" id="checkoutWaLink" class="btn btn-primary btn-block" onclick="return confirmOrderAndSendWhatsApp();" data-i18n="checkout_send_wa">Send Receipt on WhatsApp</a>
+    <button class="btn btn-outline btn-block" style="margin-top:12px;" onclick="openReviewModal()" data-i18n="checkout_leave_review">Leave a Review</button>
+    <button class="btn btn-outline btn-block" style="margin-top:12px;" onclick="closeCheckout()" data-i18n="checkout_back">Back to Cart</button>
+  </div>
+</div>
+
+<!-- ===== REVIEW MODAL ===== -->
+<div class="checkout-modal" id="reviewModal">
+  <div class="checkout-box">
+    <p class="eyebrow" data-i18n="review_eyebrow">Thanks for training with us</p>
+    <h3 data-i18n="review_h3">Leave a review</h3>
+    <input class="modal-field" id="reviewName" placeholder="Your name" data-i18n-ph="review_name_ph">
+    <select class="modal-field" id="reviewProgram"></select>
+    <div class="star-picker" id="starPicker">
+      <span data-v="1">★</span><span data-v="2">★</span><span data-v="3">★</span><span data-v="4">★</span><span data-v="5">★</span>
+    </div>
+    <textarea class="modal-field" id="reviewComment" rows="3" placeholder="How was your program?" data-i18n-ph="review_comment_ph"></textarea>
+    <label class="modal-field" style="display:block; border:1px dashed var(--text); padding:14px; font-family:var(--mono); font-size:11px; text-transform:uppercase; text-align:center; cursor:pointer; color:var(--text);">
+      <span data-i18n="review_photo_label">Add a progress photo (optional)</span>
+      <input type="file" id="reviewPhoto" accept="image/*" style="display:none;">
+    </label>
+    <button class="btn btn-primary btn-block" onclick="submitReview()" data-i18n="review_submit">Submit Review</button>
+    <button class="btn btn-outline btn-block" style="margin-top:12px;" onclick="closeReviewModal()" data-i18n="review_cancel">Cancel</button>
+  </div>
+</div>
+
+<!-- ===== LOGIN MODAL ===== -->
+<div class="checkout-modal" id="loginModal">
+  <div class="checkout-box">
+    <p class="eyebrow" data-i18n="login_eyebrow">Coach access</p>
+    <h3 data-i18n="login_h3">Log in to your dashboard</h3>
+    <input class="modal-field" type="password" id="loginPassword" placeholder="Password" data-i18n-ph="login_pw_ph">
+    <button class="btn btn-primary btn-block" onclick="attemptLogin()" data-i18n="login_submit">Log In</button>
+    <button class="btn btn-outline btn-block" style="margin-top:12px;" onclick="closeLogin()" data-i18n="login_cancel">Cancel</button>
+  </div>
+</div>
+
+<!-- ===== ADMIN DASHBOARD ===== -->
+<div class="admin-overlay" id="adminOverlay">
+  <aside class="dash-sidebar">
+    <div class="dash-logo-row"><div class="logo">EVO <span>FIT</span></div></div>
+    <span class="dash-tag">Coach Dashboard</span>
+    <nav class="dash-nav">
+      <button class="dash-nav-item active" id="tabbtn-profile" onclick="switchTab('profile')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <span>Trainer Profile</span>
+      </button>
+      <button class="dash-nav-item" id="tabbtn-programs" onclick="switchTab('programs')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        <span>Programs</span>
+      </button>
+      <button class="dash-nav-item" id="tabbtn-tiers" onclick="switchTab('tiers')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41 11 3.83A2 2 0 0 0 9.59 3.24H4a1 1 0 0 0-1 1v5.59a2 2 0 0 0 .59 1.41l9.58 9.58a2 2 0 0 0 2.83 0l4.59-4.59a2 2 0 0 0 0-2.82z"/><circle cx="7.5" cy="7.5" r="1.5"/></svg>
+        <span>Tier Pricing</span>
+      </button>
+      <button class="dash-nav-item" id="tabbtn-reviews" onclick="switchTab('reviews')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        <span>Reviews</span>
+      </button>
+      <button class="dash-nav-item" id="tabbtn-videos" onclick="switchTab('videos')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+        <span>Technique</span>
+      </button>
+      <button class="dash-nav-item" id="tabbtn-gallery" onclick="switchTab('gallery')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+        <span>Gallery</span>
+      </button>
+      <button class="dash-nav-item" id="tabbtn-partners" onclick="switchTab('partners')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+        <span>Partners</span>
+      </button>
+      <button class="dash-nav-item" id="tabbtn-clients" onclick="switchTab('clients')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        <span>Clients</span>
+      </button>
+      <button class="dash-nav-item" id="tabbtn-reports" onclick="switchTab('reports')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        <span>Reports</span>
+      </button>
+      <button class="dash-nav-item" id="tabbtn-discounts" onclick="switchTab('discounts')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="5" x2="5" y2="19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></svg>
+        <span>Discounts</span>
+      </button>
+    </nav>
+    <div class="dash-logout-row">
+      <button class="btn btn-outline btn-sm" onclick="logout()">Log Out ✕</button>
+    </div>
+  </aside>
+  <main class="dash-main">
+    <div class="dash-topbar"><h2 id="dashTitle">Programs</h2></div>
+    <div class="admin-body" style="padding:0; max-width:none; margin:0;">
+      <div class="admin-tab-panel" id="tab-profile">
+        <p class="checkout-note" style="margin-bottom:6px; color:var(--dash-dim);">This shows on the site's "Meet your coach" section — fill it out with your own details.</p>
+        <input class="modal-field" id="trainerName" placeholder="Full name">
+        <div style="display:flex; gap:14px;">
+          <input class="modal-field" id="trainerAge" type="number" placeholder="Age" style="flex:1;">
+          <select class="modal-field" id="trainerDiscipline" style="flex:2;">
+            <option>Powerlifting</option>
+            <option>Bodybuilding</option>
+            <option>Powerlifting & Bodybuilding</option>
+            <option>Strength & Conditioning Coach</option>
+            <option>CrossFit / Functional Fitness</option>
+            <option>General Fitness Coach</option>
+          </select>
+        </div>
+        <div style="display:flex; gap:14px;">
+          <input class="modal-field" id="trainerWeightClass" placeholder="Weight class (e.g. 93kg)" style="flex:1;">
+          <input class="modal-field" id="trainerYearsTraining" type="number" placeholder="Years training" style="flex:1;">
+          <input class="modal-field" id="trainerYearsCoaching" type="number" placeholder="Years coaching" style="flex:1;">
+        </div>
+        <p class="checkout-note" style="margin:4px 0;">Best lifts (leave blank if not a powerlifter — shown in kg)</p>
+        <div style="display:flex; gap:14px;">
+          <input class="modal-field" id="trainerSquat" type="number" placeholder="Squat" style="flex:1;">
+          <input class="modal-field" id="trainerBench" type="number" placeholder="Bench" style="flex:1;">
+          <input class="modal-field" id="trainerDeadlift" type="number" placeholder="Deadlift" style="flex:1;">
+        </div>
+        <textarea class="modal-field" id="trainerBio" rows="3" placeholder="Short bio — shown under your name"></textarea>
+        <textarea class="modal-field" id="trainerAchievements" rows="4" placeholder="Achievements — one per line (e.g. National Powerlifting Champion 2023)"></textarea>
+        <label class="modal-field" style="display:block; border:1px dashed var(--dash-border); padding:14px; font-family:var(--mono); font-size:11px; text-transform:uppercase; text-align:center; cursor:pointer; color:var(--dash-text);">
+          <span>Coach photo (optional)</span>
+          <input type="file" id="trainerPhoto" accept="image/*" style="display:none;">
+        </label>
+        <button class="btn btn-primary btn-sm" onclick="saveTrainerProfile()">Save Trainer Profile</button>
+
+        <h3 class="report-section-title">Your Progress Log</h3>
+        <p class="checkout-note" style="margin-top:-8px;">Private — only you see this. Log your own lifts over time and track your best numbers.</p>
+        <div class="progress-log-row">
+          <select class="modal-field" id="progressLift" style="margin-bottom:0;">
+            <option>Squat</option><option>Bench</option><option>Deadlift</option><option>Bodyweight</option><option>Other</option>
+          </select>
+          <input class="modal-field" id="progressWeight" type="number" placeholder="Weight (kg)" style="margin-bottom:0;">
+          <input class="modal-field" id="progressDate" type="date" style="margin-bottom:0;">
+          <button class="btn btn-primary btn-sm" onclick="addTrainerProgressEntry()">+ Add</button>
+        </div>
+        <div class="mini-stat-row" id="progressBestRow" style="margin:16px 0;"></div>
+        <div id="progressEntriesList" style="display:flex; flex-direction:column; gap:8px;"></div>
+      </div>
+      <div class="admin-tab-panel" id="tab-programs" style="display:none;">
+        <div id="adminProgramsList"></div>
+        <div class="admin-actions-row">
+          <button class="btn btn-outline btn-sm" onclick="addProgramRow()">+ Add Program</button>
+          <button class="btn btn-primary btn-sm" onclick="saveProgramsFromAdmin()">Save Programs</button>
+        </div>
+      </div>
+      <div class="admin-tab-panel" id="tab-tiers" style="display:none;">
+        <div class="admin-tier-row"><label>Standard</label><input type="number" id="tierInput-Standard"><span>SAR / mo</span></div>
+        <div class="admin-tier-row"><label>Gold</label><input type="number" id="tierInput-Gold"><span>SAR / mo</span></div>
+        <div class="admin-tier-row"><label>Diamond</label><input type="number" id="tierInput-Diamond"><span>SAR / mo</span></div>
+        <div class="admin-tier-row"><label>Elite</label><input type="number" id="tierInput-Elite"><span>SAR / mo</span></div>
+        <div class="admin-actions-row">
+          <button class="btn btn-primary btn-sm" onclick="saveTiersFromAdmin()">Save Tier Prices</button>
+        </div>
+      </div>
+      <div class="admin-tab-panel" id="tab-reviews" style="display:none;">
+        <div id="adminReviewsList"></div>
+      </div>
+      <div class="admin-tab-panel" id="tab-videos" style="display:none;">
+        <p class="checkout-note" style="margin-bottom:16px; color:var(--dash-dim);">Upload a technique video (mp4, ideally under ~50MB). Requires Supabase to be configured — see SETUP.md.</p>
+        <input class="modal-field" id="videoTitle" placeholder="Video title (e.g. Squat Setup)">
+        <input class="modal-field" id="videoCategory" placeholder="Category (e.g. Squat, Bench, Deadlift, Mobility)">
+        <input type="file" id="videoFile" accept="video/*" class="modal-field">
+        <button class="btn btn-primary btn-sm" onclick="uploadTechniqueVideo()">Upload Video</button>
+        <div id="adminVideosList" style="margin-top:24px;"></div>
+      </div>
+      <div class="admin-tab-panel" id="tab-gallery" style="display:none;">
+        <p class="checkout-note" style="margin-bottom:16px; color:var(--dash-dim);">Upload photos for your site's public Gallery section — gym shots, transformations, event photos, anything you'd like visitors to see.</p>
+        <input class="modal-field" id="galleryCaption" placeholder="Caption (optional)">
+        <input type="file" id="galleryFile" accept="image/*" class="modal-field">
+        <button class="btn btn-primary btn-sm" onclick="uploadGalleryPhoto()">Upload Photo</button>
+        <div id="adminGalleryList" style="margin-top:24px; display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:14px;"></div>
+      </div>
+      <div class="admin-tab-panel" id="tab-partners" style="display:none;">
+        <p class="checkout-note" style="margin-bottom:16px; color:var(--dash-dim);">Add sponsor or partner names — they'll scroll across a ticker bar on your homepage. Leave this list empty to hide that section.</p>
+        <div id="adminPartnersList"></div>
+        <div class="admin-actions-row">
+          <button class="btn btn-outline btn-sm" onclick="addPartnerRow()">+ Add Partner</button>
+          <button class="btn btn-primary btn-sm" onclick="savePartnersFromAdmin()">Save Partners</button>
+        </div>
+      </div>
+      <div class="admin-tab-panel" id="tab-clients" style="display:none;">
+        <p class="checkout-note" style="margin-bottom:16px; color:var(--dash-dim);">Everyone who has logged in with their email. Requires Supabase to be configured.</p>
+        <div id="adminClientsList"></div>
+      </div>
+      <div class="admin-tab-panel" id="tab-reports" style="display:none;">
+        <div class="stat-cards" id="reportStatCards"></div>
+
+        <div class="dash-grid" style="margin-top:18px;">
+          <div class="dash-col">
+            <h3 class="report-section-title" style="margin-top:0;">Revenue by month</h3>
+            <div class="dash-card">
+              <div class="bar-chart" id="reportMonthlyChart"></div>
+            </div>
+
+            <h3 class="report-section-title">Orders</h3>
+            <p class="checkout-note" style="color:var(--dash-dim); margin-top:-10px;">Orders are created when a client sends their receipt on WhatsApp. Mark them Paid once you've confirmed the transfer — only Paid orders count toward your revenue and totals above.</p>
+            <div id="adminOrdersList" style="display:flex; flex-direction:column; gap:10px;"></div>
+          </div>
+
+          <div class="dash-col">
+            <h3 class="report-section-title" style="margin-top:0;">Monthly goal</h3>
+            <div class="dash-card goal-ring-wrap" style="flex-direction:column; align-items:center; text-align:center; gap:16px;">
+              <div class="goal-ring" id="goalRing"><div class="goal-ring-value" id="goalRingValue">0%</div></div>
+              <div style="width:100%;">
+                <p style="color:var(--dash-dim); font-size:13px; margin-bottom:10px;" id="goalRingCaption">Set a revenue target to track progress this month.</p>
+                <div class="goal-edit-row" style="justify-content:center;">
+                  <span>Target:</span>
+                  <input type="number" id="goalTargetInput" placeholder="e.g. 5000">
+                  <span>SAR / mo</span>
+                </div>
+                <button class="btn btn-primary btn-sm" style="margin-top:12px; width:100%;" onclick="saveMonthlyGoal()">Save</button>
+              </div>
+            </div>
+
+            <h3 class="report-section-title">Quick stats</h3>
+            <div class="mini-stat-row">
+              <div class="mini-stat"><div class="label">Pending Orders</div><div class="value" id="miniStatPending">—</div></div>
+              <div class="mini-stat"><div class="label">Clients</div><div class="value" id="miniStatClients">—</div></div>
+            </div>
+
+            <h3 class="report-section-title">Coach notes</h3>
+            <textarea class="notes-box" id="coachNotes" placeholder="Jot down anything — client follow-ups, ideas, reminders..." onblur="saveCoachNotes()"></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="admin-tab-panel" id="tab-discounts" style="display:none;">
+        <h3 class="report-section-title" style="margin-top:0;">Top Announcement Bar</h3>
+        <p class="checkout-note">Advertise a sale or promo code in a bar above your header. Turn it on or off anytime.</p>
+        <label style="display:flex; align-items:center; gap:10px; margin:6px 0 14px; color:var(--dash-text); font-size:14px;">
+          <input type="checkbox" id="announceEnabled" style="width:auto;"> Show announcement bar on the site
+        </label>
+        <input class="modal-field" id="announceText" placeholder="e.g. 🔥 20% off all programs this week — use code SUMMER20">
+        <button class="btn btn-primary btn-sm" onclick="saveAnnouncement()">Save Announcement Bar</button>
+
+        <h3 class="report-section-title">Promo Codes</h3>
+        <p class="checkout-note" style="margin-bottom:16px; color:var(--dash-dim);">Create a code for one specific client (their dashboard will show it automatically), or leave the client field blank to make a code anyone can use.</p>
+        <input class="modal-field" id="discountCode" placeholder="Code (e.g. SPRING20)">
+        <input class="modal-field" id="discountPercent" type="number" placeholder="Percent off (e.g. 20)">
+        <select class="modal-field" id="discountClient"><option value="">— Anyone (general code) —</option></select>
+        <input class="modal-field" id="discountNote" placeholder="Note to yourself (optional)">
+        <button class="btn btn-primary btn-sm" onclick="createDiscount()">Create Discount</button>
+        <div id="adminDiscountsList" style="margin-top:24px; display:flex; flex-direction:column; gap:10px;"></div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- ===== CLIENT LOGIN MODAL (email-based, free forever) ===== -->
+<div class="checkout-modal" id="clientLoginModal">
+  <div class="checkout-box">
+    <p class="eyebrow" data-i18n="client_login_eyebrow">Client access</p>
+    <h3 id="clientLoginTitle" data-i18n="client_login_h3">Log in with your email</h3>
+    <p class="checkout-note" id="clientAuthNote" style="margin-bottom:14px;"></p>
+    <div id="clientEmailStep">
+      <input class="modal-field" id="clientEmail" type="email" placeholder="you@email.com">
+      <button class="btn btn-primary btn-block" onclick="sendClientOtp()" data-i18n="client_send_code">Send Code</button>
+    </div>
+    <div id="clientCodeStep" style="display:none;">
+      <input class="modal-field" id="clientOtp" placeholder="Enter the 6-digit code" data-i18n-ph="client_code_ph">
+      <button class="btn btn-primary btn-block" onclick="verifyClientOtp()" data-i18n="client_verify">Verify &amp; Log In</button>
+      <button class="btn btn-outline btn-block" style="margin-top:12px;" onclick="backToEmailStep()" data-i18n="client_diff_email">Use a different email</button>
+    </div>
+    <button class="btn btn-outline btn-block" style="margin-top:12px;" onclick="closeClientLogin()" data-i18n="client_cancel">Cancel</button>
+  </div>
+</div>
+
+<!-- ===== CLIENT DASHBOARD (progress, PRs, photos, discount) ===== -->
+<div class="admin-overlay" id="clientOverlay">
+  <main class="dash-main" style="width:100%;">
+    <div class="dash-topbar">
+      <h2 id="clientDashName">My Dashboard</h2>
+      <button class="btn btn-outline btn-sm" onclick="clientLogout()">Log Out ✕</button>
+    </div>
+
+    <div id="clientDiscountBanner"></div>
+
+    <div class="dash-card" style="margin-bottom:18px; display:flex; flex-direction:column; gap:14px;">
+      <div class="admin-tier-row" style="align-items:center;">
+        <label>My program</label>
+        <select id="clientProgramSelect" onchange="saveClientProgram()" style="flex:1;"></select>
+      </div>
+      <div class="admin-tier-row" style="align-items:center;">
+        <label>WhatsApp</label>
+        <input class="modal-field" id="clientPhoneField" placeholder="+9665XXXXXXXX" style="flex:1; margin:0;" onchange="saveClientPhone()">
+      </div>
+      <p style="font-size:13px; color:var(--dash-dim);">Member since <strong id="clientJoinDate" style="color:#fff;">—</strong> · <strong id="clientDaysActive" style="color:#fff;">—</strong> days training with EVO FIT.</p>
+    </div>
+
+    <h3 class="report-section-title" style="margin-top:0;">Personal records</h3>
+    <div class="dash-card" style="margin-bottom:18px;">
+      <div id="clientPrList" style="display:flex; flex-direction:column; gap:10px; margin-bottom:16px;"></div>
+      <div class="admin-actions-row">
+        <input class="modal-field" id="prLift" placeholder="Lift (e.g. Squat)" style="max-width:160px;">
+        <input class="modal-field" id="prWeight" placeholder="Weight (kg)" style="max-width:120px;" type="number">
+        <button class="btn btn-primary btn-sm" onclick="addClientPr()">+ Add PR</button>
+      </div>
+    </div>
+
+    <h3 class="report-section-title">Progress photos</h3>
+    <div class="dash-card">
+      <div id="clientPhotoGrid" style="display:grid; grid-template-columns:repeat(auto-fill,minmax(110px,1fr)); gap:10px; margin-bottom:16px;"></div>
+      <input type="file" id="clientPhotoFile" accept="image/*">
+      <button class="btn btn-primary btn-sm" style="margin-top:10px;" onclick="uploadClientPhoto()">Upload Progress Photo</button>
+    </div>
+  </main>
+</div>
+
+<script>
+  // ============ NIGHT MODE ============
+  function toggleNight(){
+    document.body.classList.toggle('night');
+  }
+  if(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches){
+    document.body.classList.add('night');
+  }
+
+  // ============ LANGUAGE (EN / AR + RTL) ============
+  // Note: this translates the site's built-in text only. Anything you type yourself —
+  // program names/descriptions, reviews, video titles — stays exactly as you entered it.
+  const I18N = {
+    en: {
+      nav_home:'Home', nav_about:'About', nav_programs:'Programs', nav_ranks:'Ranks', nav_technique:'Technique', nav_shop:'Shop', nav_contact:'Contact',
+      hero_vertical:'Training · Nutrition · Powerlifting · Health —', hero_eyebrow:'Coach · Dammam, KSA',
+      hero_sub:"Coaching by [Your Name] — training, nutrition, and powerlifting programs ranked from Standard to Elite, built around where you are and where you want to go.",
+      hero_cta1:'View Programs', hero_cta2:'See Ranks', hero_meta1:'Years Coaching', hero_meta2:'Athletes Trained', hero_meta3:'Meet PRs Set',
+      about_eyebrow:'About the coach', about_h2:'Three ways I|get you there',
+      about_sub:'Every program is coached, not templated — built from your training history, your schedule, and your goals in the gym.',
+      pillar1_h:'Strength you can measure', pillar1_p:'Structured strength and conditioning built around progressive overload — programmed week to week, not guessed at.',
+      pillar2_h:'Nutrition that fits your life', pillar2_p:'Macros and meal structure built around your schedule and food preferences — sustainable, not restrictive.',
+      pillar3_h:'Powerlifting, peaked right', pillar3_p:'Squat, bench, and deadlift progression with real peaking protocols, built for the platform and for meet day.',
+      process_eyebrow:'The process', process_h2:'How we get|you there', process_sub:'Four steps, repeated every training block, so your program keeps moving with you.',
+      process1_title:'Assess', process1_desc:'Baseline lifts, mobility, and goals',
+      process2_title:'Program', process2_desc:'A plan built for your rank and focus',
+      process3_title:'Train', process3_desc:'Coached execution with real feedback',
+      process4_title:'Adapt', process4_desc:'Plans evolve as your numbers do',
+      programs_eyebrow:'What I coach', programs_h2:'Programs', programs_sub:'Pick a single focus, or combine training and nutrition for the complete approach.',
+      ranks_eyebrow:'Coaching tiers', ranks_h2:'Rank up', ranks_sub:'Every tier loads more onto the bar — more check-ins, more direct access, more customization.',
+      tech_eyebrow:'Watch & learn', tech_h2:'Technique library', tech_sub:"Short videos on the lifts and movements you'll see in your program — form cues, common mistakes, and setup.",
+      log_eyebrow:'From the log', log_h2:'Training notes', log_sub:'Short reads on the things that actually move the needle.', read_more:'Read more →',
+      shop_eyebrow:'Build your order', shop_h2:'Shop', shop_sub:'Choose a program, pick a tier, add it to your cart, then check out to get payment instructions.',
+      reviews_eyebrow:'Client results', reviews_h2:'What clients say', reviews_sub:'Real feedback from athletes training on EVO FIT programs.',
+      cta_strip_h2:"Ready to rank up? Pick your program and let's get to work.", cta_strip_btn:'Start Your Order',
+      contact_eyebrow:'Get in touch', contact_h3:'Questions before you order?',
+      contact_sub:"Message me directly on WhatsApp — I'll help you pick the right program and tier for your goals.",
+      contact_wa_hint:'Tap "Message on WhatsApp" below or use this number', contact_wa_btn:'Message on WhatsApp',
+      form_name:'Full name', form_email:'Email', form_phone:'Phone / WhatsApp', form_goals:'Tell me about your goals', form_send:'Send Message',
+      footer_cta_h2:"Let's evolve your strength together.", footer_cta_btn:'Start Your Order',
+      footer_copy:'EVO FIT © 2026 · Coaching by [Your Name] · Dammam, Saudi Arabia', footer_coach_login:'Coach Login',
+      checkout_eyebrow:'Final step', checkout_h3:'Complete your order',
+      pay_bank:'Bank', pay_account:'Account Name', pay_iban:'IBAN', pay_whatsapp:'WhatsApp',
+      checkout_note:"Transfer the total shown above to the IBAN, then tap the button below — it opens WhatsApp with your order pre-filled. Send your payment receipt in that chat and I'll activate your program.",
+      checkout_send_wa:'Send Receipt on WhatsApp', checkout_leave_review:'Leave a Review', checkout_back:'Back to Cart',
+      review_eyebrow:'Thanks for training with us', review_h3:'Leave a review', review_name_ph:'Your name', review_comment_ph:'How was your program?',
+      review_photo_label:'Add a progress photo (optional)', review_submit:'Submit Review', review_cancel:'Cancel',
+      login_eyebrow:'Coach access', login_h3:'Log in to your dashboard', login_pw_ph:'Password', login_submit:'Log In', login_cancel:'Cancel',
+      cart_title:'Your Cart', cart_subtotal:'Subtotal', cart_checkout:'Proceed to Checkout',
+      client_login_eyebrow:'Client access', client_login_h3:'Log in with your email', client_send_code:'Send Code',
+      client_code_ph:'Enter the 6-digit code', client_verify:'Verify & Log In', client_diff_email:'Use a different email', client_cancel:'Cancel',
+      shop_add_to_cart:'Add to Cart',
+      coach_eyebrow:'Meet your coach',
+      promo_ph:'Promo code (optional)', promo_apply:'Apply',
+      gallery_eyebrow:'A look inside', gallery_h2:'Gallery',
+      partners_eyebrow:'Trusted by', partners_h2:'Our sponsors & partners',
+      unit_per_month:' SAR/mo',
+      rank_standard_name:'Standard', rank_standard_f1:'One program of your choice', rank_standard_f2:'Monthly plan updates', rank_standard_f3:'App-based tracking', rank_standard_f4:'Community support channel', rank_standard_btn:'Select Standard',
+      rank_gold_name:'Gold', rank_gold_f1:'Training + Nutrition combined', rank_gold_f2:'Bi-weekly plan updates', rank_gold_f3:'Weekly form-check videos', rank_gold_f4:'Direct chat access to coach', rank_gold_btn:'Select Gold',
+      rank_diamond_name:'Diamond', rank_diamond_f1:'Everything in Gold', rank_diamond_f2:'Weekly 1:1 check-ins', rank_diamond_f3:'Custom meal & recipe planning', rank_diamond_f4:'Priority WhatsApp access', rank_diamond_f5:'Powerlifting meet-prep add-on', rank_diamond_btn:'Select Diamond',
+      rank_elite_name:'Elite', rank_elite_f1:'Everything in Diamond', rank_elite_f2:'Daily direct coach access', rank_elite_f3:'Fully custom program, no templates', rank_elite_f4:'Monthly video call session', rank_elite_f5:'Priority scheduling & revisions', rank_elite_btn:'Select Elite',
+    },
+    ar: {
+      nav_home:'الرئيسية', nav_about:'نبذة عني', nav_programs:'البرامج', nav_ranks:'المستويات', nav_technique:'التقنية', nav_shop:'المتجر', nav_contact:'تواصل',
+      hero_vertical:'تدريب · تغذية · رفع الأثقال · صحة —', hero_eyebrow:'مدرب · الدمام، السعودية',
+      hero_sub:'تدريب مع [اسمك] — برامج تدريب وتغذية ورفع أثقال مصنفة من ستاندرد إلى إيليت، مبنية على وضعك الحالي وهدفك القادم.',
+      hero_cta1:'تصفح البرامج', hero_cta2:'شاهد المستويات', hero_meta1:'سنوات تدريب', hero_meta2:'متدرب تم تدريبه', hero_meta3:'رقم قياسي محقق',
+      about_eyebrow:'نبذة عن المدرب', about_h2:'ثلاث طرق|توصلك للهدف',
+      about_sub:'كل برنامج مُصمم خصيصًا وليس جاهزًا — مبني على تاريخك التدريبي وجدولك وأهدافك في الجيم.',
+      pillar1_h:'قوة يمكن قياسها', pillar1_p:'تدريب قوة ولياقة منظم مبني على الحمل التدريجي — مبرمج أسبوعيًا وليس عشوائيًا.',
+      pillar2_h:'تغذية تناسب حياتك', pillar2_p:'حساب الماكروز وتنظيم الوجبات حسب جدولك وتفضيلاتك الغذائية — مستدام وليس مقيّدًا.',
+      pillar3_h:'رفع أثقال بتوقيت صحيح', pillar3_p:'تطور في القرفصاء والبنش والديدلفت مع بروتوكولات ذروة حقيقية، لمنصة المنافسة ويوم البطولة.',
+      process_eyebrow:'خطوات العمل', process_h2:'كيف نوصلك|لهدفك', process_sub:'أربع خطوات، تتكرر في كل مرحلة تدريبية، ليستمر برنامجك بالتطور معك.',
+      process1_title:'تقييم', process1_desc:'قياس الأرقام الأساسية والمرونة والأهداف',
+      process2_title:'برنامج', process2_desc:'خطة مبنية على مستواك وتركيزك',
+      process3_title:'تدريب', process3_desc:'تنفيذ موجّه مع ملاحظات حقيقية',
+      process4_title:'تطوير', process4_desc:'الخطط تتطور مع تقدم أرقامك',
+      programs_eyebrow:'ما أقدمه', programs_h2:'البرامج', programs_sub:'اختر تركيزًا واحدًا، أو ادمج التدريب والتغذية للحصول على نهج متكامل.',
+      ranks_eyebrow:'مستويات التدريب', ranks_h2:'ارفع مستواك', ranks_sub:'كل مستوى يضيف المزيد — متابعات أكثر، تواصل مباشر أكثر، تخصيص أكبر.',
+      tech_eyebrow:'شاهد وتعلم', tech_h2:'مكتبة التقنية', tech_sub:'مقاطع قصيرة عن الحركات التي ستراها في برنامجك — تصحيح الأداء، الأخطاء الشائعة، والإعداد.',
+      log_eyebrow:'من المدونة', log_h2:'ملاحظات تدريبية', log_sub:'قراءات قصيرة عن الأشياء التي تُحدث فرقًا فعليًا.', read_more:'اقرأ المزيد ←',
+      shop_eyebrow:'جهّز طلبك', shop_h2:'المتجر', shop_sub:'اختر برنامجًا، حدد المستوى، أضفه للسلة، ثم أكمل الطلب للحصول على تعليمات الدفع.',
+      reviews_eyebrow:'نتائج العملاء', reviews_h2:'ماذا يقول عملاؤنا', reviews_sub:'آراء حقيقية من متدربين على برامج EVO FIT.',
+      cta_strip_h2:'جاهز لرفع مستواك؟ اختر برنامجك ولنبدأ العمل.', cta_strip_btn:'ابدأ طلبك',
+      contact_eyebrow:'تواصل معي', contact_h3:'عندك أسئلة قبل الطلب؟',
+      contact_sub:'راسلني مباشرة عبر واتساب — سأساعدك على اختيار البرنامج والمستوى المناسبين لأهدافك.',
+      contact_wa_hint:'اضغط "راسلني عبر واتساب" أدناه أو استخدم هذا الرقم', contact_wa_btn:'راسلني عبر واتساب',
+      form_name:'الاسم الكامل', form_email:'البريد الإلكتروني', form_phone:'الهاتف / واتساب', form_goals:'أخبرني عن أهدافك', form_send:'إرسال الرسالة',
+      footer_cta_h2:'لنطوّر قوتك معًا.', footer_cta_btn:'ابدأ طلبك',
+      footer_copy:'EVO FIT © 2026 · تدريب بواسطة [اسمك] · الدمام، السعودية', footer_coach_login:'دخول المدرب',
+      checkout_eyebrow:'الخطوة الأخيرة', checkout_h3:'أكمل طلبك',
+      pay_bank:'البنك', pay_account:'اسم الحساب', pay_iban:'الآيبان', pay_whatsapp:'واتساب',
+      checkout_note:'حوّل المبلغ الموضح أعلاه إلى الآيبان، ثم اضغط الزر أدناه — سيفتح واتساب مع تفاصيل طلبك جاهزة. أرسل إيصال الدفع في تلك المحادثة وسأقوم بتفعيل برنامجك.',
+      checkout_send_wa:'إرسال الإيصال عبر واتساب', checkout_leave_review:'أضف تقييمًا', checkout_back:'العودة للسلة',
+      review_eyebrow:'شكرًا لتدريبك معنا', review_h3:'أضف تقييمك', review_name_ph:'اسمك', review_comment_ph:'كيف كان برنامجك؟',
+      review_photo_label:'أضف صورة لتقدمك (اختياري)', review_submit:'إرسال التقييم', review_cancel:'إلغاء',
+      login_eyebrow:'دخول المدرب', login_h3:'تسجيل الدخول إلى لوحة التحكم', login_pw_ph:'كلمة المرور', login_submit:'تسجيل الدخول', login_cancel:'إلغاء',
+      cart_title:'سلتك', cart_subtotal:'الإجمالي الفرعي', cart_checkout:'إتمام الطلب',
+      client_login_eyebrow:'دخول العميل', client_login_h3:'تسجيل الدخول عبر بريدك الإلكتروني', client_send_code:'إرسال الرمز',
+      client_code_ph:'أدخل الرمز المكوّن من 6 أرقام', client_verify:'تحقق وسجّل الدخول', client_diff_email:'استخدم بريدًا إلكترونيًا آخر', client_cancel:'إلغاء',
+      shop_add_to_cart:'أضف إلى السلة',
+      coach_eyebrow:'تعرف على مدربك',
+      promo_ph:'كود الخصم (اختياري)', promo_apply:'تطبيق',
+      gallery_eyebrow:'لمحة من الداخل', gallery_h2:'معرض الصور',
+      partners_eyebrow:'موثوق من', partners_h2:'رعاتنا وشركاؤنا',
+      unit_per_month:' ر.س/شهر',
+      rank_standard_name:'أساسي', rank_standard_f1:'برنامج واحد من اختيارك', rank_standard_f2:'تحديث شهري للخطة', rank_standard_f3:'متابعة عبر التطبيق', rank_standard_f4:'قناة دعم مجتمعية', rank_standard_btn:'اختر أساسي',
+      rank_gold_name:'ذهبي', rank_gold_f1:'تدريب وتغذية مدمجان', rank_gold_f2:'تحديث الخطة كل أسبوعين', rank_gold_f3:'فيديوهات تصحيح أداء أسبوعية', rank_gold_f4:'تواصل مباشر مع المدرب', rank_gold_btn:'اختر ذهبي',
+      rank_diamond_name:'ماسي', rank_diamond_f1:'كل مزايا الذهبي', rank_diamond_f2:'متابعة أسبوعية فردية', rank_diamond_f3:'تخطيط وجبات ووصفات مخصص', rank_diamond_f4:'أولوية التواصل عبر واتساب', rank_diamond_f5:'إضافة تحضير لبطولة رفع الأثقال', rank_diamond_btn:'اختر ماسي',
+      rank_elite_name:'نخبة', rank_elite_f1:'كل مزايا الماسي', rank_elite_f2:'تواصل يومي مباشر مع المدرب', rank_elite_f3:'برنامج مخصص بالكامل، بدون قوالب', rank_elite_f4:'مكالمة فيديو شهرية', rank_elite_f5:'أولوية الجدولة والتعديلات', rank_elite_btn:'اختر نخبة',
+    }
+  };
+  const HERO_TITLE_HTML = {
+    en:'I coach strength &amp;<br><em>powerlifting</em><br>built to evolve you',
+    ar:'أدرّب القوة و<br><em>رفع الأثقال</em><br>لنطوّر قدراتك'
+  };
+  const TIER_LABELS = {
+    en: { Standard:'Standard', Gold:'Gold', Diamond:'Diamond', Elite:'Elite' },
+    ar: { Standard:'أساسي', Gold:'ذهبي', Diamond:'ماسي', Elite:'نخبة' }
+  };
+  const CURRENCY_LABEL = { en:'SAR', ar:'ر.س' };
+  let currentLang = 'en';
+  function applyLang(lang){
+    currentLang = lang;
+    const dict = I18N[lang];
+    document.documentElement.lang = lang;
+    document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+    document.querySelectorAll('[data-i18n]').forEach(el=>{
+      const key = el.dataset.i18n;
+      if(!dict[key]) return;
+      if(el.dataset.i18nHtml){
+        el.innerHTML = dict[key].split('|').join('<br>');
+        splitWords(el);
+        revealSplit(el);
+      } else {
+        el.textContent = dict[key];
+      }
+    });
+    document.querySelectorAll('[data-i18n-ph]').forEach(el=>{
+      const key = el.dataset.i18nPh;
+      if(dict[key]) el.placeholder = dict[key];
+    });
+    const heroTitle = document.getElementById('heroTitle');
+    if(heroTitle){
+      heroTitle.innerHTML = HERO_TITLE_HTML[lang];
+      splitWords(heroTitle);
+      revealSplit(heroTitle);
+    }
+    // Re-render everything built dynamically in JS so it reflects the new language too
+    renderProgramsGrid();
+    renderShop();
+    updateRankPrices();
+    renderPublicReviews();
+    renderTechGrid();
+    renderTrainerOnSite();
+    if(typeof renderGalleryOnSite === 'function') renderGalleryOnSite();
+    if(typeof renderPartnersTicker === 'function') renderPartnersTicker();
+    if(typeof renderAnnouncementBar === 'function') renderAnnouncementBar();
+  }
+  function toggleLang(){
+    applyLang(currentLang === 'en' ? 'ar' : 'en');
+  }
+
+  // ============ EDITABLE SETTINGS ============
+  const WHATSAPP_NUMBER = "966598790231"; // corrected 996 -> 966 (Saudi country code) — please double-check this is right
+  const CURRENCY = "SAR";
+  const ADMIN_PASSWORD = "Evo#2026"; // client-side only, not real security — visible in page source to anyone who looks
+
+  // ============ SUPABASE CONFIG (real accounts, PRs, photos, videos) ============
+  // 1. Create a free project at supabase.com
+  // 2. Paste your Project URL + anon public key below (Project Settings -> API)
+  // 3. Run the SQL in SETUP.md, enable Phone Auth, create the storage buckets listed there
+  const SUPABASE_URL = "https://abwkjmmcbtgodswgdili.supabase.co";       // e.g. "https://xxxxxxxx.supabase.co"
+  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFid2tqbW1jYnRnb2Rzd2dkaWxpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU0MDU5OTYsImV4cCI6MjEwMDk4MTk5Nn0.pxbzRexMUbqR38SulWwBvObE9qzqrqytQwDdeJJdoLo";
+  const DISCOUNT_DAYS = 90;      // days of membership before a client unlocks a loyalty discount
+  const DISCOUNT_CODE = "LOYAL90"; // the code shown to eligible clients
+
+  let sb = null;
+  const SUPABASE_READY = SUPABASE_URL !== "YOUR_SUPABASE_URL" && SUPABASE_ANON_KEY !== "YOUR_SUPABASE_ANON_KEY";
+  if (SUPABASE_READY && window.supabase) {
+    sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  }
+
+  // ---- Unified key/value storage: uses Supabase table `site_data` when configured, ----
+  // ---- otherwise falls back to Claude's built-in artifact storage (preview-only). ----
+  async function dbGet(key){
+    if (sb) {
+      const { data, error } = await sb.from('site_data').select('value').eq('key', key).maybeSingle();
+      if (error || !data) return null;
+      return data.value; // already jsonb, no parsing needed
+    }
+    try{
+      const r = await window.storage.get(key, true);
+      return r && r.value ? JSON.parse(r.value) : null;
+    }catch(e){ return null; }
+  }
+  async function dbSet(key, value){
+    if (sb) {
+      const { error } = await sb.from('site_data').upsert({ key, value });
+      if (error) throw error;
+      return true;
+    }
+    await window.storage.set(key, JSON.stringify(value), true);
+    return true;
+  }
+
+  document.getElementById('waDisplay').textContent = "+" + WHATSAPP_NUMBER;
+  document.getElementById('waLink').href = "https://wa.me/" + WHATSAPP_NUMBER + "?text=" + encodeURIComponent("Hi! I have a question about EVO FIT coaching programs.");
+
+  // ============ HEADER SOLID ON SCROLL ============
+  // (ring1/ring2 parallax now handled by the generic data-parallax system further down)
+  const header = document.getElementById('siteHeader');
+  let headerTicking = false;
+  window.addEventListener('scroll', ()=>{
+    header.classList.toggle('solid', window.scrollY > 40);
+    if(!headerTicking){
+      requestAnimationFrame(()=>{ headerTicking = false; });
+      headerTicking = true;
+    }
+  }, { passive:true });
+
+  // ============ FULL SCREEN MENU ============
+  function toggleMenu(open){
+    document.getElementById('menuOverlay').classList.toggle('active', open);
+    document.body.style.overflow = open ? 'hidden' : '';
+  }
+
+  // ============ SCROLL REVEAL ============
+  const revealEls = document.querySelectorAll('.reveal');
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{
+      if(e.isIntersecting){ e.target.classList.add('in-view'); io.unobserve(e.target); }
+    });
+  }, { threshold:0.15 });
+  revealEls.forEach(el => io.observe(el));
+
+  // ============ SPLIT-WORD TEXT ANIMATION ============
+  function splitWords(el){
+    function process(node){
+      Array.from(node.childNodes).forEach(child=>{
+        if(child.nodeType===3 && child.textContent.trim()!==''){
+          const parts = child.textContent.split(/(\s+)/);
+          const frag = document.createDocumentFragment();
+          parts.forEach(w=>{
+            if(w.trim()===''){ frag.appendChild(document.createTextNode(w)); }
+            else{
+              const span = document.createElement('span');
+              span.className = 'split-word';
+              span.textContent = w;
+              frag.appendChild(span);
+            }
+          });
+          node.replaceChild(frag, child);
+        } else if(child.nodeType===1){
+          process(child);
+        }
+      });
+    }
+    process(el);
+  }
+  function revealSplit(el){
+    const words = el.querySelectorAll('.split-word');
+    words.forEach((w,i)=>{ w.style.transitionDelay = (i*0.045)+'s'; });
+    requestAnimationFrame(()=> requestAnimationFrame(()=>{
+      words.forEach(w=>w.classList.add('in'));
+    }));
+  }
+  document.querySelectorAll('.split').forEach(el => splitWords(el));
+  setTimeout(()=>{ revealSplit(document.getElementById('heroTitle')); }, 250);
+  const splitIO = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{
+      if(e.isIntersecting){ revealSplit(e.target); splitIO.unobserve(e.target); }
+    });
+  }, { threshold:0.3 });
+  document.querySelectorAll('.split').forEach(el=>{ if(el.id!=='heroTitle') splitIO.observe(el); });
+
+  // ============ SPLIT-CHARS (per-letter reveal, Istanbul-style name split) ============
+  function splitChars(el){
+    function process(node){
+      Array.from(node.childNodes).forEach(child=>{
+        if(child.nodeType===3 && child.textContent!==''){
+          const frag = document.createDocumentFragment();
+          child.textContent.split('').forEach(ch=>{
+            const span = document.createElement('span');
+            span.className = 'split-char';
+            span.textContent = ch===' ' ? '\u00A0' : ch;
+            frag.appendChild(span);
+          });
+          node.replaceChild(frag, child);
+        } else if(child.nodeType===1){
+          process(child);
+        }
+      });
+    }
+    process(el);
+    const chars = el.querySelectorAll('.split-char');
+    chars.forEach((c,i)=>{ c.style.transitionDelay = (i*0.045)+'s'; });
+    requestAnimationFrame(()=> requestAnimationFrame(()=>{
+      chars.forEach(c=>c.classList.add('in'));
+    }));
+  }
+  const logoEl = document.getElementById('siteLogo');
+  if(logoEl) setTimeout(()=> splitChars(logoEl), 150);
+
+  // ============ SCROLL PROGRESS BAR ============
+  const progressBar = document.getElementById('scrollProgress');
+  function updateProgress(){
+    const h = document.documentElement;
+    const scrolled = (h.scrollTop || document.body.scrollTop);
+    const height = h.scrollHeight - h.clientHeight;
+    progressBar.style.width = (height > 0 ? (scrolled/height)*100 : 0) + '%';
+  }
+
+  // ============ CONTINUOUS SCROLL-LINKED PARALLAX (Istanbul-style ambient motion) ============
+  const parallaxEls = document.querySelectorAll('[data-parallax]');
+  let ticking = false;
+  function updateParallax(){
+    const y = window.scrollY;
+    parallaxEls.forEach(el=>{
+      const speed = parseFloat(el.dataset.parallax);
+      el.style.transform = (el.dataset.baseTransform||'') + ` translateY(${y*speed}px)`;
+    });
+    updateProgress();
+    ticking = false;
+  }
+  window.addEventListener('scroll', ()=>{
+    if(!ticking){ requestAnimationFrame(updateParallax); ticking = true; }
+  }, { passive:true });
+  updateParallax();
+
+  // ============ MAGNETIC BUTTONS ============
+  document.querySelectorAll('.magnetic').forEach(el=>{
+    el.addEventListener('mousemove', (e)=>{
+      const rect = el.getBoundingClientRect();
+      const x = e.clientX - rect.left - rect.width/2;
+      const y = e.clientY - rect.top - rect.height/2;
+      el.style.transform = `translate(${x*0.22}px, ${y*0.35}px)`;
+    });
+    el.addEventListener('mouseleave', ()=>{ el.style.transform = ''; });
+  });
+  document.getElementById('badgeBtn').addEventListener('click', ()=>{
+    window.open(document.getElementById('waLink').href, '_blank');
+  });
+
+  // ============ HELPERS ============
+  function escapeHtml(str){ const d=document.createElement('div'); d.textContent = str||''; return d.innerHTML; }
+  function escapeAttr(str){ return (str||'').replace(/"/g,'&quot;'); }
+
+  // ============ DEFAULT DATA ============
+  const DEFAULT_PROGRAMS = [
+    { tag:'Strength', name:'Powerlifting', desc:'Squat, bench, and deadlift progression with meet-day peaking.' },
+    { tag:'Training', name:'Strength & Conditioning', desc:'Full-body strength training built around your goals.' },
+    { tag:'Nutrition', name:'Nutrition Coaching', desc:'Custom macros and meal structuring for your schedule.' },
+    { tag:'Training + Nutrition', name:'Complete Program', desc:'Training and nutrition combined under one plan.' },
+    { tag:'Health', name:'Health & Conditioning', desc:'Mobility, low-impact conditioning, and lifestyle coaching.' }
+  ];
+  const DEFAULT_TIERS = { Standard:199, Gold:349, Diamond:549, Elite:899 };
+  const DEFAULT_REVIEWS = [
+    { name:'Omar A.', program:'Powerlifting', rating:5, comment:'Hit a 20kg PR on my deadlift in 10 weeks. The check-ins kept me honest.', status:'approved' },
+    { name:'Sara K.', program:'Complete Program', rating:5, comment:'First coach who actually adjusted my meals around my work schedule.', status:'approved' },
+    { name:'Yousef M.', program:'Health & Conditioning', rating:4, comment:'Down 8kg and my knees finally stopped hurting on stairs.', status:'approved' }
+  ];
+
+  const DEFAULT_TRAINER = {
+    name:'[Your Name]', age:'', discipline:'Powerlifting', weightClass:'', yearsTraining:'', yearsCoaching:'8',
+    squat:'', bench:'', deadlift:'', bio:"Coaching by [Your Name] — training, nutrition, and powerlifting programs built around where you are and where you want to go.",
+    achievements:'', photo:''
+  };
+
+  let PROGRAMS = [...DEFAULT_PROGRAMS];
+  let TIER_PRICES = { ...DEFAULT_TIERS };
+  let REVIEWS = [...DEFAULT_REVIEWS];
+  let VIDEOS = []; // { title, category, url }
+  let TRAINER = { ...DEFAULT_TRAINER };
+  let techActiveCat = 'All';
+  let GALLERY = []; // { url, caption }
+  let PARTNERS = []; // { name }
+  let ANNOUNCEMENT = { enabled:false, text:'' };
+  let TRAINER_PROGRESS = []; // { id, date, lift, weight, note }
+
+  // ============ STORAGE LOAD ============
+  async function loadAllData(){
+    try{ const v = await dbGet('evofit:programs'); if(v) PROGRAMS = v; }catch(e){ /* keep defaults */ }
+    try{ const v = await dbGet('evofit:tiers'); if(v) TIER_PRICES = v; }catch(e){ /* keep defaults */ }
+    try{ const v = await dbGet('evofit:reviews'); if(v) REVIEWS = v; }catch(e){ /* keep defaults */ }
+    try{ const v = await dbGet('evofit:videos'); if(v) VIDEOS = v; }catch(e){ /* keep empty */ }
+    try{ const v = await dbGet('evofit:trainer'); if(v) TRAINER = { ...DEFAULT_TRAINER, ...v }; }catch(e){ /* keep defaults */ }
+    try{ const v = await dbGet('evofit:gallery'); if(v) GALLERY = v; }catch(e){ /* keep empty */ }
+    try{ const v = await dbGet('evofit:partners'); if(v) PARTNERS = v; }catch(e){ /* keep empty */ }
+    try{ const v = await dbGet('evofit:announcement'); if(v) ANNOUNCEMENT = v; }catch(e){ /* keep defaults */ }
+    try{ const v = await dbGet('evofit:trainerProgress'); if(v) TRAINER_PROGRESS = v; }catch(e){ /* keep empty */ }
+    renderProgramsGrid();
+    renderShop();
+    updateRankPrices();
+    renderPublicReviews();
+    populateReviewProgramSelect();
+    renderTechFilter();
+    renderTechGrid();
+    renderTrainerOnSite();
+    renderGalleryOnSite();
+    renderPartnersTicker();
+    renderAnnouncementBar();
+  }
+
+  // ============ TRAINER / ATHLETE PROFILE (public render) ============
+  function renderTrainerOnSite(){
+    const t = TRAINER;
+    document.getElementById('coachName').textContent = t.name || '[Your Name]';
+    document.getElementById('coachAge').textContent = t.age ? `Age ${t.age}` : '';
+    document.getElementById('coachDiscipline').textContent = t.discipline || 'Coach';
+    document.getElementById('coachBio').textContent = t.bio || '';
+    document.getElementById('coachPhotoTag').textContent = 'EVO FIT — ' + (t.name || 'Coach');
+
+    const photoEl = document.getElementById('coachPhoto');
+    if(t.photo){
+      photoEl.style.backgroundImage = `url('${t.photo}')`;
+      photoEl.classList.add('has-photo');
+    } else {
+      photoEl.style.backgroundImage = '';
+      photoEl.classList.remove('has-photo');
+    }
+    const heroPhotoEl = document.querySelector('.hero-photo');
+    if(heroPhotoEl){
+      heroPhotoEl.style.backgroundImage = t.photo ? `url('${t.photo}')` : '';
+      heroPhotoEl.classList.toggle('has-photo', !!t.photo);
+      heroPhotoEl.style.backgroundSize = 'cover';
+      heroPhotoEl.style.backgroundPosition = 'center';
+    }
+    const heroTagEl = document.querySelector('.hero-photo-tag');
+    if(heroTagEl) heroTagEl.textContent = 'EVO FIT — ' + (t.name && t.name !== '[Your Name]' ? t.name : 'Coach');
+
+    const stats = [];
+    if(t.yearsCoaching) stats.push({ n:t.yearsCoaching+'+', l:'Years Coaching' });
+    if(t.yearsTraining) stats.push({ n:t.yearsTraining+'+', l:'Years Training' });
+    if(t.weightClass) stats.push({ n:t.weightClass, l:'Weight Class' });
+    if(t.squat) stats.push({ n:t.squat+'kg', l:'Best Squat' });
+    if(t.bench) stats.push({ n:t.bench+'kg', l:'Best Bench' });
+    if(t.deadlift) stats.push({ n:t.deadlift+'kg', l:'Best Deadlift' });
+    document.getElementById('coachStatsGrid').innerHTML = stats.map(s => `<div class="coach-stat"><span class="n">${escapeHtml(String(s.n))}</span><span class="l">${escapeHtml(s.l)}</span></div>`).join('');
+
+    const achList = (t.achievements||'').split('\n').map(s=>s.trim()).filter(Boolean);
+    document.getElementById('coachAchievements').innerHTML = achList.map(a => `<li>${escapeHtml(a)}</li>`).join('');
+  }
+
+  function loadTrainerAdminForm(){
+    const t = TRAINER;
+    document.getElementById('trainerName').value = t.name === '[Your Name]' ? '' : (t.name || '');
+    document.getElementById('trainerAge').value = t.age || '';
+    document.getElementById('trainerDiscipline').value = t.discipline || 'Powerlifting';
+    document.getElementById('trainerWeightClass').value = t.weightClass || '';
+    document.getElementById('trainerYearsTraining').value = t.yearsTraining || '';
+    document.getElementById('trainerYearsCoaching').value = t.yearsCoaching || '';
+    document.getElementById('trainerSquat').value = t.squat || '';
+    document.getElementById('trainerBench').value = t.bench || '';
+    document.getElementById('trainerDeadlift').value = t.deadlift || '';
+    document.getElementById('trainerBio').value = (t.bio && t.bio !== DEFAULT_TRAINER.bio) ? t.bio : '';
+    document.getElementById('trainerAchievements').value = t.achievements || '';
+    renderTrainerProgress();
+  }
+
+  async function saveTrainerProfile(){
+    const photoFile = document.getElementById('trainerPhoto').files[0];
+    let photoUrl = TRAINER.photo || '';
+    if(photoFile){
+      if(sb){
+        try{
+          const path = `trainer_${Date.now()}_${photoFile.name}`;
+          const { error } = await sb.storage.from('review-photos').upload(path, photoFile);
+          if(!error) photoUrl = sb.storage.from('review-photos').getPublicUrl(path).data.publicUrl;
+        }catch(e){ console.error('Photo upload failed', e); }
+      } else {
+        alert("Photo noted, but Supabase isn't configured yet so the photo can't be saved permanently — the rest of your profile will still save.");
+      }
+    }
+    TRAINER = {
+      name: document.getElementById('trainerName').value.trim() || '[Your Name]',
+      age: document.getElementById('trainerAge').value.trim(),
+      discipline: document.getElementById('trainerDiscipline').value,
+      weightClass: document.getElementById('trainerWeightClass').value.trim(),
+      yearsTraining: document.getElementById('trainerYearsTraining').value.trim(),
+      yearsCoaching: document.getElementById('trainerYearsCoaching').value.trim(),
+      squat: document.getElementById('trainerSquat').value.trim(),
+      bench: document.getElementById('trainerBench').value.trim(),
+      deadlift: document.getElementById('trainerDeadlift').value.trim(),
+      bio: document.getElementById('trainerBio').value.trim() || DEFAULT_TRAINER.bio,
+      achievements: document.getElementById('trainerAchievements').value.trim(),
+      photo: photoUrl
+    };
+    try{
+      await dbSet('evofit:trainer', TRAINER);
+      renderTrainerOnSite();
+      document.getElementById('trainerPhoto').value = '';
+      alert('Trainer profile saved.');
+    }catch(e){ alert('Could not save profile: ' + e.message); }
+  }
+
+  // ============ TRAINER PROGRESS LOG (private — coach's own lifts over time) ============
+  async function addTrainerProgressEntry(){
+    const lift = document.getElementById('progressLift').value;
+    const weight = parseFloat(document.getElementById('progressWeight').value);
+    const dateVal = document.getElementById('progressDate').value;
+    if(isNaN(weight) || weight <= 0){ alert('Enter a weight in kg.'); return; }
+    const entry = {
+      id: 'p' + Date.now(),
+      date: dateVal || new Date().toISOString().slice(0,10),
+      lift,
+      weight
+    };
+    TRAINER_PROGRESS.push(entry);
+    try{
+      await dbSet('evofit:trainerProgress', TRAINER_PROGRESS);
+      document.getElementById('progressWeight').value = '';
+      renderTrainerProgress();
+    }catch(e){ alert('Could not save entry: ' + e.message); }
+  }
+  async function deleteTrainerProgressEntry(id){
+    TRAINER_PROGRESS = TRAINER_PROGRESS.filter(e => e.id !== id);
+    try{ await dbSet('evofit:trainerProgress', TRAINER_PROGRESS); }catch(e){ /* ignore */ }
+    renderTrainerProgress();
+  }
+  function renderTrainerProgress(){
+    const bestRow = document.getElementById('progressBestRow');
+    const listEl = document.getElementById('progressEntriesList');
+    if(!bestRow || !listEl) return;
+
+    const lifts = ['Squat','Bench','Deadlift'];
+    bestRow.innerHTML = lifts.map(l=>{
+      const entries = TRAINER_PROGRESS.filter(e => e.lift === l);
+      const best = entries.length ? Math.max(...entries.map(e=>e.weight)) : null;
+      return `<div class="mini-stat"><div class="label">Best ${l}</div><div class="value">${best!=null ? best+'kg' : '—'}</div></div>`;
+    }).join('');
+
+    const sorted = [...TRAINER_PROGRESS].sort((a,b)=> new Date(b.date) - new Date(a.date));
+    listEl.innerHTML = sorted.length ? sorted.map(e => `
+      <div class="progress-entry">
+        <div class="pe-meta"><strong>${escapeHtml(e.lift)} — ${e.weight}kg</strong><small>${new Date(e.date).toLocaleDateString()}</small></div>
+        <button class="admin-delete" onclick="deleteTrainerProgressEntry('${e.id}')">Delete</button>
+      </div>
+    `).join('') : '<p style="font-size:13px;color:var(--dash-dim);">No entries yet — log your first lift above.</p>';
+  }
+
+  // ============ GALLERY (public photo grid, admin-managed) ============
+  function renderGalleryOnSite(){
+    const section = document.getElementById('gallery');
+    const grid = document.getElementById('galleryGrid');
+    if(!section || !grid) return;
+    if(!GALLERY.length){ section.style.display = 'none'; return; }
+    section.style.display = '';
+    grid.innerHTML = GALLERY.map(g => `
+      <div class="gallery-item">
+        <img src="${escapeAttr(g.url)}" alt="${escapeAttr(g.caption||'')}" loading="lazy">
+        ${g.caption ? `<div class="cap">${escapeHtml(g.caption)}</div>` : ''}
+      </div>
+    `).join('');
+  }
+  function renderAdminGallery(){
+    const el = document.getElementById('adminGalleryList');
+    if(!el) return;
+    el.innerHTML = GALLERY.length ? GALLERY.map((g,i) => `
+      <div class="admin-gallery-item">
+        <img src="${escapeAttr(g.url)}" alt="">
+        <button onclick="deleteGalleryPhoto(${i})" title="Delete">✕</button>
+      </div>
+    `).join('') : '<p style="font-size:13px;color:var(--dash-dim);">No photos uploaded yet.</p>';
+  }
+  async function uploadGalleryPhoto(){
+    const file = document.getElementById('galleryFile').files[0];
+    const caption = document.getElementById('galleryCaption').value.trim();
+    if(!file){ alert('Choose a photo first.'); return; }
+    if(!sb){ alert("Supabase isn't configured yet — see SETUP.md."); return; }
+    try{
+      const path = `gallery_${Date.now()}_${file.name}`;
+      const { error } = await sb.storage.from('review-photos').upload(path, file);
+      if(error) throw error;
+      const url = sb.storage.from('review-photos').getPublicUrl(path).data.publicUrl;
+      GALLERY.push({ url, caption });
+      await dbSet('evofit:gallery', GALLERY);
+      document.getElementById('galleryCaption').value = '';
+      document.getElementById('galleryFile').value = '';
+      renderAdminGallery();
+      renderGalleryOnSite();
+    }catch(e){ alert('Upload failed: ' + e.message); }
+  }
+  async function deleteGalleryPhoto(i){
+    GALLERY.splice(i,1);
+    try{ await dbSet('evofit:gallery', GALLERY); }catch(e){ /* ignore */ }
+    renderAdminGallery();
+    renderGalleryOnSite();
+  }
+
+  // ============ PARTNERS / SPONSORS TICKER (public, admin-managed) ============
+  function renderPartnersTicker(){
+    const section = document.getElementById('partners');
+    const track = document.getElementById('partnersTickerTrack');
+    if(!section || !track) return;
+    if(!PARTNERS.length){ section.style.display = 'none'; return; }
+    section.style.display = '';
+    const names = PARTNERS.map(p => `<span>${escapeHtml(p.name)}</span>`).join('');
+    track.innerHTML = names + names; // duplicated for a seamless scroll loop
+  }
+  function renderAdminPartners(){
+    const el = document.getElementById('adminPartnersList');
+    if(!el) return;
+    el.innerHTML = PARTNERS.map((p,i)=>`
+      <div class="admin-row" data-idx="${i}" style="flex-direction:row; align-items:center; gap:10px;">
+        <input data-field="name" value="${escapeAttr(p.name)}" placeholder="Partner or sponsor name" style="flex:1;">
+        <button class="admin-delete" onclick="deletePartnerRow(${i})">Delete</button>
+      </div>
+    `).join('');
+  }
+  function addPartnerRow(){
+    PARTNERS.push({ name:'' });
+    renderAdminPartners();
+  }
+  function deletePartnerRow(i){
+    PARTNERS.splice(i,1);
+    renderAdminPartners();
+  }
+  async function savePartnersFromAdmin(){
+    const rows = document.querySelectorAll('#adminPartnersList .admin-row');
+    const arr = [];
+    rows.forEach(row=>{
+      const name = row.querySelector('[data-field="name"]').value.trim();
+      if(name) arr.push({ name });
+    });
+    PARTNERS = arr;
+    try{
+      await dbSet('evofit:partners', PARTNERS);
+      renderPartnersTicker();
+      alert('Partners saved — live on your site now.');
+    }catch(e){ alert('Could not save partners: ' + e.message); }
+  }
+
+  // ============ ANNOUNCEMENT BAR (public, toggleable) ============
+  function loadAnnouncementAdminForm(){
+    const enabledEl = document.getElementById('announceEnabled');
+    const textEl = document.getElementById('announceText');
+    if(!enabledEl || !textEl) return;
+    enabledEl.checked = !!ANNOUNCEMENT.enabled;
+    textEl.value = ANNOUNCEMENT.text || '';
+  }
+  async function saveAnnouncement(){
+    ANNOUNCEMENT = {
+      enabled: document.getElementById('announceEnabled').checked,
+      text: document.getElementById('announceText').value.trim()
+    };
+    try{
+      await dbSet('evofit:announcement', ANNOUNCEMENT);
+      renderAnnouncementBar();
+      alert('Announcement bar updated.');
+    }catch(e){ alert('Could not save announcement: ' + e.message); }
+  }
+  function renderAnnouncementBar(){
+    const bar = document.getElementById('announcementBar');
+    if(!bar) return;
+    const dismissed = sessionStorage.getItem('evofit_announce_dismissed') === '1';
+    if(ANNOUNCEMENT.enabled && ANNOUNCEMENT.text && !dismissed){
+      document.getElementById('announcementText').textContent = ANNOUNCEMENT.text;
+      bar.style.display = 'flex';
+    } else {
+      bar.style.display = 'none';
+    }
+    requestAnimationFrame(()=>{
+      const h = bar.style.display !== 'none' ? bar.offsetHeight : 0;
+      document.documentElement.style.setProperty('--announce-offset', h + 'px');
+    });
+  }
+  function dismissAnnouncement(){
+    sessionStorage.setItem('evofit_announce_dismissed', '1');
+    renderAnnouncementBar();
+  }
+
+  // ============ TECHNIQUE VIDEO LIBRARY (public) ============
+  function renderTechFilter(){
+    const cats = ['All', ...new Set(VIDEOS.map(v=>v.category).filter(Boolean))];
+    const el = document.getElementById('techFilter');
+    el.innerHTML = cats.map(c => `<button class="tech-pill ${c===techActiveCat?'active':''}" onclick="filterTech('${escapeAttr(c)}')">${escapeHtml(c)}</button>`).join('');
+  }
+  function filterTech(cat){ techActiveCat = cat; renderTechFilter(); renderTechGrid(); }
+  function renderTechGrid(){
+    const el = document.getElementById('techGrid');
+    const list = techActiveCat === 'All' ? VIDEOS : VIDEOS.filter(v => v.category === techActiveCat);
+    if(!list.length){ el.innerHTML = '<p class="tech-empty">No technique videos uploaded yet — add some from the Coach Dashboard.</p>'; return; }
+    el.innerHTML = list.map(v => `
+      <div class="tech-card">
+        <video src="${escapeAttr(v.url)}" controls preload="metadata"></video>
+        <div class="tech-card-body">
+          <span class="tech-cat">${escapeHtml(v.category||'General')}</span>
+          <h3>${escapeHtml(v.title)}</h3>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // ============ PUBLIC RENDER: PROGRAMS GRID ============
+  function renderProgramsGrid(){
+    const grid = document.getElementById('programsGrid');
+    grid.innerHTML = PROGRAMS.map(p => `
+      <div class="program-card">
+        <span class="program-tag">${escapeHtml(pField(p,'tag'))}</span>
+        <h3>${escapeHtml(pField(p,'name'))}</h3>
+        <p>${escapeHtml(pField(p,'desc'))}</p>
+      </div>
+    `).join('');
+  }
+
+  // Returns the Arabic version of a program field when Arabic is active and provided, else English
+  function pField(p, field){
+    if(currentLang === 'ar' && p[field+'_ar']) return p[field+'_ar'];
+    return p[field] || '';
+  }
+  // Resolves the price for a program+tier: program-specific override, else the default tier price
+  function priceFor(p, tier){
+    return (p.prices && p.prices[tier] != null) ? p.prices[tier] : TIER_PRICES[tier];
+  }
+  function tierLabel(tier){
+    return (TIER_LABELS[currentLang] && TIER_LABELS[currentLang][tier]) || tier;
+  }
+  function currencyLabel(){
+    return CURRENCY_LABEL[currentLang] || CURRENCY;
+  }
+
+  // ============ PUBLIC RENDER: SHOP GRID ============
+  function renderShop(){
+    const shopGrid = document.getElementById('shopGrid');
+    shopGrid.innerHTML = '';
+    PROGRAMS.forEach((p,idx)=>{
+      const card = document.createElement('div');
+      card.className = 'shop-card';
+      card.innerHTML = `
+        <div class="shop-card-top">
+          <div>
+            <h3>${escapeHtml(pField(p,'name'))}</h3>
+            <p>${escapeHtml(pField(p,'desc'))}</p>
+          </div>
+          <div class="shop-price" id="price-${idx}">${priceFor(p,'Standard')} ${currencyLabel()}</div>
+        </div>
+        <div class="shop-controls">
+          <select class="tier-select" id="tier-${idx}" onchange="updateShopPrice(${idx})">
+            <option value="Standard">${tierLabel('Standard')}</option>
+            <option value="Gold">${tierLabel('Gold')}</option>
+            <option value="Diamond">${tierLabel('Diamond')}</option>
+            <option value="Elite">${tierLabel('Elite')}</option>
+          </select>
+          <button class="btn btn-primary" onclick="addFromShop(${idx})">${I18N[currentLang].shop_add_to_cart || 'Add to Cart'}</button>
+        </div>
+      `;
+      shopGrid.appendChild(card);
+    });
+  }
+
+  function updateShopPrice(idx){
+    const tier = document.getElementById('tier-'+idx).value;
+    document.getElementById('price-'+idx).textContent = priceFor(PROGRAMS[idx],tier) + ' ' + currencyLabel();
+  }
+
+  function addFromShop(idx){
+    const tier = document.getElementById('tier-'+idx).value;
+    addToCart(pField(PROGRAMS[idx],'name'), tier, priceFor(PROGRAMS[idx],tier));
+  }
+
+  function addFromRank(tier){
+    addToCart('Complete Program', tier, TIER_PRICES[tier]);
+  }
+
+  function updateRankPrices(){
+    Object.keys(TIER_PRICES).forEach(t=>{
+      const el = document.getElementById('rp-'+t);
+      if(el) el.textContent = TIER_PRICES[t];
+    });
+  }
+
+  // ============ PUBLIC RENDER: REVIEWS ============
+  function renderPublicReviews(){
+    const grid = document.getElementById('reviewsGrid');
+    const approved = REVIEWS.filter(r => r.status === 'approved');
+    const list = approved.length ? approved : DEFAULT_REVIEWS;
+    grid.innerHTML = list.map(r => `
+      <div class="review-card">
+        ${r.photo ? `<img src="${escapeAttr(r.photo)}" alt="Progress photo from ${escapeAttr(r.name)}" style="width:100%; aspect-ratio:4/3; object-fit:cover; border-radius:4px; margin-bottom:6px;">` : ''}
+        <div class="review-stars">${'★'.repeat(r.rating)}${'☆'.repeat(5-r.rating)}</div>
+        <p class="review-quote">"${escapeHtml(r.comment)}"</p>
+        <div class="review-name">${escapeHtml(r.name)}</div>
+        <div class="review-program">${escapeHtml(r.program)}</div>
+      </div>
+    `).join('');
+  }
+
+  function populateReviewProgramSelect(){
+    const sel = document.getElementById('reviewProgram');
+    sel.innerHTML = PROGRAMS.map(p => `<option value="${escapeAttr(p.name)}">${escapeHtml(p.name)}</option>`).join('');
+  }
+
+  // ============ REVIEW SUBMISSION (client) ============
+  let currentRating = 0;
+  document.querySelectorAll('#starPicker span').forEach(star=>{
+    star.addEventListener('click', ()=>{
+      currentRating = parseInt(star.dataset.v);
+      document.querySelectorAll('#starPicker span').forEach(s=>{
+        s.classList.toggle('active', parseInt(s.dataset.v) <= currentRating);
+      });
+    });
+  });
+
+  function openReviewModal(){
+    document.getElementById('checkoutModal').classList.remove('active');
+    document.getElementById('reviewModal').classList.add('active');
+    document.getElementById('overlay').classList.add('active');
+  }
+  function closeReviewModal(){
+    document.getElementById('reviewModal').classList.remove('active');
+    document.getElementById('overlay').classList.remove('active');
+  }
+
+  async function submitReview(){
+    const name = document.getElementById('reviewName').value.trim();
+    const program = document.getElementById('reviewProgram').value;
+    const comment = document.getElementById('reviewComment').value.trim();
+    const photoFile = document.getElementById('reviewPhoto').files[0];
+    if(!name){ alert('Please enter your name.'); return; }
+    if(currentRating === 0){ alert('Please select a star rating.'); return; }
+    if(!comment){ alert('Please add a short comment.'); return; }
+
+    let photoUrl = null;
+    if(photoFile){
+      if(sb){
+        try{
+          const path = `${Date.now()}_${photoFile.name}`;
+          const { error } = await sb.storage.from('review-photos').upload(path, photoFile);
+          if(!error){
+            photoUrl = sb.storage.from('review-photos').getPublicUrl(path).data.publicUrl;
+          }
+        }catch(e){ console.error('Photo upload failed', e); }
+      } else {
+        alert("Photo noted, but Supabase isn't configured yet so the photo can't be saved permanently — the rest of your review will still submit.");
+      }
+    }
+
+    REVIEWS.push({ name, program, rating: currentRating, comment, photo: photoUrl, status:'pending', date: new Date().toISOString() });
+    try{
+      await dbSet('evofit:reviews', REVIEWS);
+    }catch(e){ console.error('Could not save review', e); }
+
+    closeReviewModal();
+    alert("Thanks! Your review has been submitted and will appear on the site once I approve it.");
+    document.getElementById('reviewName').value = '';
+    document.getElementById('reviewComment').value = '';
+    document.getElementById('reviewPhoto').value = '';
+    currentRating = 0;
+    document.querySelectorAll('#starPicker span').forEach(s=>s.classList.remove('active'));
+  }
+
+  // ============ CART LOGIC (in-memory, resets on reload) ============
+  let cart = [];
+
+  function addToCart(program, tier, price){
+    const key = program + '-' + tier;
+    const existing = cart.find(i => i.key === key);
+    if(existing){ existing.qty += 1; }
+    else { cart.push({ key, program, tier, price, qty:1 }); }
+    renderCart();
+    toggleCart(true);
+  }
+
+  function removeFromCart(key){
+    cart = cart.filter(i => i.key !== key);
+    renderCart();
+  }
+
+  function changeQty(key, delta){
+    const item = cart.find(i => i.key === key);
+    if(!item) return;
+    item.qty += delta;
+    if(item.qty <= 0){ removeFromCart(key); return; }
+    renderCart();
+  }
+
+  function cartTotal(){
+    return cart.reduce((sum,i)=> sum + i.price * i.qty, 0);
+  }
+
+  function renderCart(){
+    const itemsEl = document.getElementById('cartItems');
+    const countEl = document.getElementById('cartCount');
+    const subtotalEl = document.getElementById('cartSubtotal');
+
+    countEl.textContent = cart.reduce((n,i)=> n + i.qty, 0);
+    subtotalEl.textContent = cartTotal() + ' ' + CURRENCY;
+
+    if(cart.length === 0){
+      itemsEl.innerHTML = '<div class="cart-empty">Your cart is empty.<br>Add a program from the Shop section.</div>';
+      return;
+    }
+
+    itemsEl.innerHTML = cart.map(i => `
+      <div class="cart-item">
+        <div>
+          <div class="cart-item-name">${escapeHtml(i.program)}</div>
+          <div class="cart-item-meta">${escapeHtml(i.tier)} tier</div>
+          <div class="cart-item-qty">
+            <button class="qty-btn" onclick="changeQty('${i.key}',-1)">−</button>
+            <span>${i.qty}</span>
+            <button class="qty-btn" onclick="changeQty('${i.key}',1)">+</button>
+          </div>
+          <button class="remove-btn" onclick="removeFromCart('${i.key}')">Remove</button>
+        </div>
+        <div class="cart-item-price">${i.price * i.qty} ${CURRENCY}</div>
+      </div>
+    `).join('');
+  }
+
+  function toggleCart(open){
+    document.getElementById('cartDrawer').classList.toggle('active', open);
+    document.getElementById('overlay').classList.toggle('active', open);
+  }
+
+  // ============ CHECKOUT MODAL ============
+  let appliedPromo = null; // { code, percent } — promo codes are created in the Coach Dashboard's Discounts tab
+
+  function openCheckout(){
+    if(cart.length === 0){ alert('Your cart is empty — add a program first.'); return; }
+    orderAlreadySaved = false;
+    appliedPromo = null;
+    toggleCart(false);
+    document.getElementById('promoCodeInput').value = '';
+    document.getElementById('promoMsg').textContent = '';
+    renderCheckoutSummary();
+
+    document.getElementById('checkoutModal').classList.add('active');
+    document.getElementById('overlay').classList.add('active');
+  }
+
+  function closeCheckout(){
+    document.getElementById('checkoutModal').classList.remove('active');
+    document.getElementById('overlay').classList.remove('active');
+  }
+
+  // ============ PROMO CODES (validated against the "discounts" table) ============
+  async function applyPromoCode(){
+    const input = document.getElementById('promoCodeInput');
+    const msgEl = document.getElementById('promoMsg');
+    const code = input.value.trim().toUpperCase();
+    if(!code){ appliedPromo = null; msgEl.textContent = ''; renderCheckoutSummary(); return; }
+    if(!sb){
+      msgEl.style.color = 'var(--orange)';
+      msgEl.textContent = "Promo codes need Supabase connected — see SETUP.md.";
+      return;
+    }
+    try{
+      const { data, error } = await sb.from('discounts').select('*').ilike('code', code);
+      if(error) throw error;
+      const match = (data||[]).find(d => !d.client_id || (clientSession && d.client_id === clientSession.user.id));
+      if(match){
+        appliedPromo = { code: match.code, percent: match.percent_off };
+        msgEl.style.color = '#4ade80';
+        msgEl.textContent = `✓ Code applied — ${match.percent_off}% off.`;
+      } else {
+        appliedPromo = null;
+        msgEl.style.color = 'var(--orange)';
+        msgEl.textContent = "That code isn't valid.";
+      }
+    }catch(e){
+      appliedPromo = null;
+      msgEl.style.color = 'var(--orange)';
+      msgEl.textContent = "Couldn't check that code — try again.";
+    }
+    renderCheckoutSummary();
+  }
+
+  function renderCheckoutSummary(){
+    const summaryEl = document.getElementById('checkoutSummary');
+    const subtotal = cartTotal();
+    const discountAmt = appliedPromo ? Math.round(subtotal * appliedPromo.percent / 100) : 0;
+    const total = subtotal - discountAmt;
+
+    let html = cart.map(i => `
+      <div><span>${escapeHtml(i.program)} — ${escapeHtml(i.tier)} ×${i.qty}</span><span>${i.price * i.qty} ${CURRENCY}</span></div>
+    `).join('');
+    if(appliedPromo){
+      html += `<div><span>Discount (${escapeHtml(appliedPromo.code)})</span><span>−${discountAmt} ${CURRENCY}</span></div>`;
+    }
+    html += `<div style="border-top:1px solid var(--line); padding-top:10px; margin-top:6px; font-weight:700;"><span>Total</span><span>${total} ${CURRENCY}</span></div>`;
+    summaryEl.innerHTML = html;
+
+    let msg = "Hi! I'd like to order:%0A";
+    cart.forEach(i => { msg += `- ${i.program} (${i.tier}) x${i.qty} = ${i.price*i.qty} ${CURRENCY}%0A`; });
+    if(appliedPromo) msg += `Promo code: ${appliedPromo.code} (−${discountAmt} ${CURRENCY})%0A`;
+    msg += `Total: ${total} ${CURRENCY}%0AI've sent the bank transfer, receipt attached.`;
+    document.getElementById('checkoutWaLink').href = "https://wa.me/" + WHATSAPP_NUMBER + "?text=" + msg;
+  }
+
+  // ============ SAVE ORDER ON CHECKOUT (feeds the Reports tab) ============
+  let orderAlreadySaved = false;
+  async function confirmOrderAndSendWhatsApp(){
+    if(sb && !orderAlreadySaved){
+      try{
+        const profile = clientSession ? await getClientProfile() : null;
+        const rows = cart.map(i => ({
+          client_id: clientSession ? clientSession.user.id : null,
+          client_email: profile ? profile.email : null,
+          client_name: profile ? (profile.name || profile.email) : 'Guest',
+          program: i.program,
+          tier: i.tier,
+          price: i.price,
+          qty: i.qty,
+          status: 'pending',
+          discount_code: appliedPromo ? appliedPromo.code : null
+        }));
+        await sb.from('orders').insert(rows);
+        orderAlreadySaved = true;
+      }catch(e){ console.error('Could not save order', e); }
+    }
+    return true; // let the href continue to WhatsApp
+  }
+
+  // ============ COACH LOGIN ============
+  let isLoggedIn = false;
+  function openLogin(){
+    document.getElementById('loginModal').classList.add('active');
+    document.getElementById('overlay').classList.add('active');
+  }
+  function closeLogin(){
+    document.getElementById('loginModal').classList.remove('active');
+    document.getElementById('overlay').classList.remove('active');
+  }
+  function attemptLogin(){
+    const pw = document.getElementById('loginPassword').value;
+    if(pw === ADMIN_PASSWORD){
+      isLoggedIn = true;
+      closeLogin();
+      document.getElementById('loginPassword').value = '';
+      openDashboard();
+    } else {
+      alert('Incorrect password.');
+    }
+  }
+  function logout(){
+    isLoggedIn = false;
+    document.getElementById('adminOverlay').classList.remove('active');
+    document.body.style.overflow = '';
+  }
+  function openDashboard(){
+    document.getElementById('adminOverlay').classList.add('active');
+    loadTrainerAdminForm();
+    renderAdminPrograms();
+    renderAdminTiers();
+    renderAdminReviews();
+    renderAdminVideos();
+    renderAdminGallery();
+    renderAdminPartners();
+    loadAnnouncementAdminForm();
+    renderAdminClients();
+    renderAdminReports();
+    renderAdminDiscounts();
+  }
+  const DASH_TITLES = { profile:'Trainer Profile', programs:'Programs', tiers:'Tier Pricing', reviews:'Reviews', videos:'Technique Videos', gallery:'Gallery', partners:'Partners', clients:'Clients', reports:'Reports', discounts:'Discounts' };
+  function switchTab(tab){
+    ['profile','programs','tiers','reviews','videos','gallery','partners','clients','reports','discounts'].forEach(t=>{
+      document.getElementById('tab-'+t).style.display = (t===tab) ? 'flex' : 'none';
+      document.getElementById('tabbtn-'+t).classList.toggle('active', t===tab);
+    });
+    document.getElementById('dashTitle').textContent = DASH_TITLES[tab] || 'Dashboard';
+  }
+
+  // ============ ADMIN: PROGRAMS ============
+  function renderAdminPrograms(){
+    const el = document.getElementById('adminProgramsList');
+    el.innerHTML = PROGRAMS.map((p,i)=>`
+      <div class="admin-row" data-idx="${i}">
+        <input data-field="tag" value="${escapeAttr(p.tag)}" placeholder="Tag (e.g. Strength)">
+        <input data-field="name" value="${escapeAttr(p.name)}" placeholder="Program name">
+        <textarea data-field="desc" placeholder="Description">${escapeHtml(p.desc)}</textarea>
+        <p class="checkout-note" style="margin:2px 0 -4px;">Arabic (optional — falls back to English if left blank)</p>
+        <input data-field="tag_ar" value="${escapeAttr(p.tag_ar||'')}" placeholder="التصنيف بالعربي" dir="rtl">
+        <input data-field="name_ar" value="${escapeAttr(p.name_ar||'')}" placeholder="اسم البرنامج بالعربي" dir="rtl">
+        <textarea data-field="desc_ar" placeholder="الوصف بالعربي" dir="rtl">${escapeHtml(p.desc_ar||'')}</textarea>
+        <p class="checkout-note" style="margin:2px 0 -4px;">Prices for this program (leave blank to use the default Tier Pricing)</p>
+        <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:10px;">
+          <input data-field="price_Standard" type="number" value="${p.prices&&p.prices.Standard!=null?p.prices.Standard:''}" placeholder="Standard">
+          <input data-field="price_Gold" type="number" value="${p.prices&&p.prices.Gold!=null?p.prices.Gold:''}" placeholder="Gold">
+          <input data-field="price_Diamond" type="number" value="${p.prices&&p.prices.Diamond!=null?p.prices.Diamond:''}" placeholder="Diamond">
+          <input data-field="price_Elite" type="number" value="${p.prices&&p.prices.Elite!=null?p.prices.Elite:''}" placeholder="Elite">
+        </div>
+        <button class="admin-delete" onclick="deleteProgramRow(${i})">Delete Program</button>
+      </div>
+    `).join('');
+  }
+  function addProgramRow(){
+    PROGRAMS.push({ tag:'', name:'New Program', desc:'', tag_ar:'', name_ar:'', desc_ar:'', prices:{} });
+    renderAdminPrograms();
+  }
+  function deleteProgramRow(i){
+    PROGRAMS.splice(i,1);
+    renderAdminPrograms();
+  }
+  async function saveProgramsFromAdmin(){
+    const rows = document.querySelectorAll('#adminProgramsList .admin-row');
+    const arr = [];
+    rows.forEach(row=>{
+      const prices = {};
+      ['Standard','Gold','Diamond','Elite'].forEach(t=>{
+        const raw = row.querySelector(`[data-field="price_${t}"]`).value;
+        if(raw !== '' && !isNaN(parseInt(raw,10))) prices[t] = parseInt(raw,10);
+      });
+      arr.push({
+        tag: row.querySelector('[data-field="tag"]').value,
+        name: row.querySelector('[data-field="name"]').value,
+        desc: row.querySelector('[data-field="desc"]').value,
+        tag_ar: row.querySelector('[data-field="tag_ar"]').value,
+        name_ar: row.querySelector('[data-field="name_ar"]').value,
+        desc_ar: row.querySelector('[data-field="desc_ar"]').value,
+        prices
+      });
+    });
+    PROGRAMS = arr;
+    try{
+      await dbSet('evofit:programs', PROGRAMS);
+      renderProgramsGrid();
+      renderShop();
+      populateReviewProgramSelect();
+      alert('Programs saved — live on your site now.');
+    }catch(e){
+      console.error(e);
+      alert('Could not save programs. Check your connection and try again.');
+    }
+  }
+
+  // ============ ADMIN: TIERS ============
+  function renderAdminTiers(){
+    Object.keys(TIER_PRICES).forEach(t=>{
+      const input = document.getElementById('tierInput-'+t);
+      if(input) input.value = TIER_PRICES[t];
+    });
+  }
+  async function saveTiersFromAdmin(){
+    const updated = {};
+    Object.keys(TIER_PRICES).forEach(t=>{
+      const val = parseInt(document.getElementById('tierInput-'+t).value, 10);
+      updated[t] = isNaN(val) ? TIER_PRICES[t] : val;
+    });
+    TIER_PRICES = updated;
+    try{
+      await dbSet('evofit:tiers', TIER_PRICES);
+      updateRankPrices();
+      renderShop();
+      alert('Tier prices saved — live on your site now.');
+    }catch(e){
+      console.error(e);
+      alert('Could not save tier prices. Check your connection and try again.');
+    }
+  }
+
+  // ============ ADMIN: REVIEWS ============
+  function renderAdminReviews(){
+    const el = document.getElementById('adminReviewsList');
+    if(REVIEWS.length === 0){ el.innerHTML = '<p style="font-size:14px;color:#777;">No reviews yet.</p>'; return; }
+    el.innerHTML = REVIEWS.map((r,i)=>`
+      <div class="admin-review-row">
+        <div class="admin-review-top">
+          <strong>${escapeHtml(r.name)}</strong>
+          <span>${'★'.repeat(r.rating)}${'☆'.repeat(5-r.rating)}</span>
+          <span class="admin-status ${r.status==='approved'?'approved':''}">${r.status}</span>
+        </div>
+        <div>${escapeHtml(r.comment)}</div>
+        <div style="font-family:var(--mono); font-size:11px; color:#999;">${escapeHtml(r.program)}</div>
+        <div class="admin-review-actions">
+          ${r.status !== 'approved' ? `<button onclick="approveReview(${i})">Approve</button>` : `<button onclick="unapproveReview(${i})">Unapprove</button>`}
+          <button onclick="deleteReview(${i})">Delete</button>
+        </div>
+      </div>
+    `).join('');
+  }
+  async function saveReviewsState(){
+    try{
+      await dbSet('evofit:reviews', REVIEWS);
+    }catch(e){ console.error(e); }
+    renderAdminReviews();
+    renderPublicReviews();
+  }
+  function approveReview(i){ REVIEWS[i].status = 'approved'; saveReviewsState(); }
+  function unapproveReview(i){ REVIEWS[i].status = 'pending'; saveReviewsState(); }
+  function deleteReview(i){ REVIEWS.splice(i,1); saveReviewsState(); }
+
+  // ============ ADMIN: TECHNIQUE VIDEOS ============
+  function renderAdminVideos(){
+    const el = document.getElementById('adminVideosList');
+    if(!VIDEOS.length){ el.innerHTML = '<p style="font-size:14px;color:#777;">No videos uploaded yet.</p>'; return; }
+    el.innerHTML = VIDEOS.map((v,i)=>`
+      <div class="admin-review-row">
+        <div class="admin-review-top"><strong>${escapeHtml(v.title)}</strong><span>${escapeHtml(v.category||'')}</span></div>
+        <div class="admin-review-actions"><button onclick="deleteVideoRow(${i})">Delete</button></div>
+      </div>
+    `).join('');
+  }
+  async function uploadTechniqueVideo(){
+    if(!sb){ alert('Connect Supabase first — see SETUP.md. Video uploads need real backend storage.'); return; }
+    const title = document.getElementById('videoTitle').value.trim();
+    const category = document.getElementById('videoCategory').value.trim();
+    const file = document.getElementById('videoFile').files[0];
+    if(!title || !file){ alert('Add a title and choose a video file.'); return; }
+    try{
+      const path = `${Date.now()}_${file.name}`;
+      const { error } = await sb.storage.from('exercise-videos').upload(path, file);
+      if(error) throw error;
+      const url = sb.storage.from('exercise-videos').getPublicUrl(path).data.publicUrl;
+      VIDEOS.push({ title, category, url });
+      await dbSet('evofit:videos', VIDEOS);
+      renderAdminVideos();
+      renderTechFilter();
+      renderTechGrid();
+      document.getElementById('videoTitle').value = '';
+      document.getElementById('videoCategory').value = '';
+      document.getElementById('videoFile').value = '';
+      alert('Video uploaded — live on your Technique page now.');
+    }catch(e){
+      console.error(e);
+      alert('Upload failed. Check your Supabase storage bucket/policies and try again.');
+    }
+  }
+  async function deleteVideoRow(i){
+    VIDEOS.splice(i,1);
+    await dbSet('evofit:videos', VIDEOS);
+    renderAdminVideos();
+    renderTechFilter();
+    renderTechGrid();
+  }
+
+  // ============ ADMIN: CLIENTS LIST ============
+  async function renderAdminClients(){
+    const el = document.getElementById('adminClientsList');
+    if(!sb){ el.innerHTML = '<p style="font-size:14px;color:#777;">Connect Supabase to see registered clients.</p>'; return; }
+    const { data, error } = await sb.from('profiles').select('*').order('join_date', { ascending:false });
+    if(error || !data){ el.innerHTML = '<p style="font-size:14px;color:#777;">Could not load clients (check RLS policies in SETUP.md).</p>'; return; }
+    el.innerHTML = data.map(c => `
+      <div class="admin-review-row">
+        <div class="admin-review-top"><strong>${escapeHtml(c.name||c.email)}</strong><span>${escapeHtml(c.phone||'no WhatsApp on file')}</span></div>
+        <div style="font-family:var(--mono); font-size:11px; color:#999;">Program: ${escapeHtml(c.program||'—')} · Joined ${c.join_date ? new Date(c.join_date).toLocaleDateString() : '—'}</div>
+      </div>
+    `).join('');
+  }
+
+  // ============ ADMIN: REPORTS (stats, monthly revenue, orders, notes) ============
+  async function renderAdminReports(){
+    const statsEl = document.getElementById('reportStatCards');
+    const chartEl = document.getElementById('reportMonthlyChart');
+    const ordersEl = document.getElementById('adminOrdersList');
+    if(!sb){
+      statsEl.innerHTML = '<p style="font-size:14px;color:#777;">Connect Supabase to see reports.</p>';
+      chartEl.innerHTML = '';
+      ordersEl.innerHTML = '';
+      loadCoachNotes();
+      return;
+    }
+    const { data: orders, error } = await sb.from('orders').select('*').order('created_at', { ascending:false });
+    if(error || !orders){
+      statsEl.innerHTML = '<p style="font-size:14px;color:#777;">Could not load orders (check RLS policies in SETUP.md).</p>';
+      loadCoachNotes();
+      return;
+    }
+
+    const paid = orders.filter(o => o.status === 'paid');
+    const totalRevenue = paid.reduce((sum,o)=> sum + (o.price * o.qty), 0);
+    const totalPurchases = paid.reduce((sum,o)=> sum + o.qty, 0);
+    const now = new Date();
+    const thisMonthKey = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+    const thisMonthRevenue = paid.filter(o => (o.paid_at||o.created_at).slice(0,7) === thisMonthKey).reduce((s,o)=>s+o.price*o.qty,0);
+
+    // group revenue by month
+    const monthly = {};
+    paid.forEach(o=>{
+      const key = (o.paid_at || o.created_at).slice(0,7); // YYYY-MM
+      monthly[key] = (monthly[key]||0) + o.price*o.qty;
+    });
+    const months = Object.keys(monthly).sort();
+    const bestMonth = months.reduce((best,m)=> (!best || monthly[m] > monthly[best]) ? m : best, null);
+    const maxRevenue = Math.max(1, ...Object.values(monthly));
+
+    statsEl.innerHTML = `
+      <div class="stat-card accent"><div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div><div class="label">Total Revenue</div><div class="value">${totalRevenue.toLocaleString()} ${CURRENCY}</div></div>
+      <div class="stat-card"><div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg></div><div class="label">Total Purchases</div><div class="value">${totalPurchases}</div></div>
+      <div class="stat-card"><div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div><div class="label">This Month</div><div class="value">${thisMonthRevenue.toLocaleString()} ${CURRENCY}</div></div>
+      <div class="stat-card"><div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div><div class="label">Best Month</div><div class="value" style="font-size:20px;">${bestMonth ? formatMonthLabel(bestMonth) : '—'}</div></div>
+    `;
+
+    renderGoalRing(thisMonthRevenue);
+
+    chartEl.innerHTML = months.length ? months.slice().reverse().map(m => `
+      <div class="bar-row">
+        <span class="bar-label">${formatMonthLabel(m)}</span>
+        <div class="bar-track"><div class="bar-fill ${m===bestMonth?'best':''}" style="width:${(monthly[m]/maxRevenue*100)}%"></div></div>
+        <span class="bar-value">${monthly[m].toLocaleString()} ${CURRENCY}</span>
+      </div>
+    `).join('') : '<p style="font-size:13px;color:#777;">No paid orders yet — mark some orders as Paid below to see revenue here.</p>';
+
+    const pendingAndRecent = orders.slice(0, 20);
+    ordersEl.innerHTML = pendingAndRecent.length ? pendingAndRecent.map(o => `
+      <div class="order-row">
+        <div class="order-meta">
+          <strong>${escapeHtml(o.client_name||o.client_email||'Guest')}</strong> — ${escapeHtml(o.program)} (${escapeHtml(o.tier)}) ×${o.qty}
+          <small>${o.price*o.qty} ${CURRENCY} · ${new Date(o.created_at).toLocaleDateString()}</small>
+        </div>
+        <span class="order-status ${o.status}">${o.status}</span>
+        <div style="display:flex; gap:8px;">
+          ${o.status!=='paid' ? `<button class="btn btn-primary btn-sm" onclick="markOrderPaid('${o.id}')">Mark Paid</button>` : ''}
+          ${o.status!=='cancelled' ? `<button class="btn btn-outline btn-sm" onclick="cancelOrder('${o.id}')">Cancel</button>` : ''}
+        </div>
+      </div>
+    `).join('') : '<p style="font-size:13px;color:#777;">No orders yet.</p>';
+
+    const pendingCount = orders.filter(o => o.status === 'pending').length;
+    document.getElementById('miniStatPending').textContent = pendingCount;
+    try{
+      const { count } = await sb.from('profiles').select('*', { count:'exact', head:true });
+      document.getElementById('miniStatClients').textContent = (count ?? '—');
+    }catch(e){ document.getElementById('miniStatClients').textContent = '—'; }
+
+    loadCoachNotes();
+  }
+
+  function formatMonthLabel(key){
+    const [y,m] = key.split('-');
+    return new Date(y, m-1, 1).toLocaleString(undefined, { month:'short', year:'numeric' });
+  }
+
+  // ============ MONTHLY GOAL RING ============
+  let MONTHLY_GOAL = 0;
+  async function renderGoalRing(currentRevenue){
+    const saved = await dbGet('evofit:goal');
+    MONTHLY_GOAL = saved ? Number(saved) : 0;
+    document.getElementById('goalTargetInput').value = MONTHLY_GOAL || '';
+    const pct = MONTHLY_GOAL > 0 ? Math.min(100, Math.round((currentRevenue / MONTHLY_GOAL) * 100)) : 0;
+    const ring = document.getElementById('goalRing');
+    ring.style.background = `conic-gradient(var(--orange) ${pct*3.6}deg, var(--dash-card-2) 0deg)`;
+    document.getElementById('goalRingValue').textContent = pct + '%';
+    document.getElementById('goalRingCaption').textContent = MONTHLY_GOAL > 0
+      ? `${currentRevenue.toLocaleString()} of ${MONTHLY_GOAL.toLocaleString()} ${CURRENCY} target this month.`
+      : 'Set a revenue target to track progress this month.';
+  }
+  async function saveMonthlyGoal(){
+    const val = parseInt(document.getElementById('goalTargetInput').value, 10) || 0;
+    await dbSet('evofit:goal', val);
+    renderAdminReports();
+  }
+
+  async function markOrderPaid(id){
+    await sb.from('orders').update({ status:'paid', paid_at: new Date().toISOString() }).eq('id', id);
+    renderAdminReports();
+  }
+  async function cancelOrder(id){
+    await sb.from('orders').update({ status:'cancelled' }).eq('id', id);
+    renderAdminReports();
+  }
+
+  // ============ ADMIN: COACH NOTES ============
+  async function loadCoachNotes(){
+    const notes = await dbGet('evofit:notes');
+    document.getElementById('coachNotes').value = notes || '';
+  }
+  async function saveCoachNotes(){
+    await dbSet('evofit:notes', document.getElementById('coachNotes').value);
+  }
+
+  // ============ ADMIN: DISCOUNTS ============
+  async function renderAdminDiscounts(){
+    const listEl = document.getElementById('adminDiscountsList');
+    const clientSel = document.getElementById('discountClient');
+    if(!sb){ listEl.innerHTML = '<p style="font-size:14px;color:#777;">Connect Supabase to manage discounts.</p>'; return; }
+
+    const { data: clients } = await sb.from('profiles').select('id,name,email');
+    if(clients){
+      clientSel.innerHTML = '<option value="">— Anyone (general code) —</option>' +
+        clients.map(c => `<option value="${c.id}">${escapeHtml(c.name||c.email)}</option>`).join('');
+    }
+
+    const { data: discounts, error } = await sb.from('discounts').select('*').order('created_at', { ascending:false });
+    if(error || !discounts){ listEl.innerHTML = '<p style="font-size:14px;color:#777;">Could not load discounts.</p>'; return; }
+    listEl.innerHTML = discounts.length ? discounts.map(d => `
+      <div class="discount-card">
+        <div>
+          <span class="discount-code">${escapeHtml(d.code)}</span> — ${d.percent_off}% off
+          ${d.client_id ? `<br><small style="font-family:var(--mono); font-size:11px; color:#999;">For one specific client</small>` : `<br><small style="font-family:var(--mono); font-size:11px; color:#999;">Anyone can use this</small>`}
+          ${d.note ? `<br><small style="color:#777;">${escapeHtml(d.note)}</small>` : ''}
+        </div>
+        <button class="btn btn-outline btn-sm" onclick="deleteDiscount('${d.id}')">Delete</button>
+      </div>
+    `).join('') : '<p style="font-size:13px;color:#777;">No discounts created yet.</p>';
+  }
+
+  async function createDiscount(){
+    const code = document.getElementById('discountCode').value.trim().toUpperCase();
+    const percent = parseInt(document.getElementById('discountPercent').value, 10);
+    const clientId = document.getElementById('discountClient').value || null;
+    const note = document.getElementById('discountNote').value.trim();
+    if(!code || !percent){ alert('Add a code and a percentage.'); return; }
+    const { error } = await sb.from('discounts').insert({ code, percent_off: percent, client_id: clientId, note });
+    if(error){ alert('Could not create discount: ' + error.message); return; }
+    document.getElementById('discountCode').value = '';
+    document.getElementById('discountPercent').value = '';
+    document.getElementById('discountNote').value = '';
+    renderAdminDiscounts();
+  }
+  async function deleteDiscount(id){
+    await sb.from('discounts').delete().eq('id', id);
+    renderAdminDiscounts();
+  }
+
+  // ============ CLIENT AUTH (email OTP, via Supabase — free forever) ============
+
+  let clientSession = null;
+
+  function openClientArea(){
+    if(!sb){
+      alert("Client accounts need Supabase connected first — see SETUP.md. Once that's set up, this button lets clients log in with their email.");
+      return;
+    }
+    if(clientSession){ openClientDashboard(); return; }
+    document.getElementById('clientLoginModal').classList.add('active');
+    document.getElementById('overlay').classList.add('active');
+    document.getElementById('clientAuthNote').textContent = "We'll email you a one-time code — no password needed.";
+  }
+  function closeClientLogin(){
+    document.getElementById('clientLoginModal').classList.remove('active');
+    document.getElementById('overlay').classList.remove('active');
+  }
+  async function sendClientOtp(){
+    const email = document.getElementById('clientEmail').value.trim();
+    if(!email.includes('@')){ alert('Enter a valid email address.'); return; }
+    const { error } = await sb.auth.signInWithOtp({ email });
+    if(error){ alert('Could not send code: ' + error.message); return; }
+    document.getElementById('clientEmailStep').style.display = 'none';
+    document.getElementById('clientCodeStep').style.display = 'block';
+  }
+  function backToEmailStep(){
+    document.getElementById('clientEmailStep').style.display = 'block';
+    document.getElementById('clientCodeStep').style.display = 'none';
+  }
+  async function verifyClientOtp(){
+    const email = document.getElementById('clientEmail').value.trim();
+    const token = document.getElementById('clientOtp').value.trim();
+    const { data, error } = await sb.auth.verifyOtp({ email, token, type: 'email' });
+    if(error){ alert('Incorrect or expired code: ' + error.message); return; }
+    clientSession = data.session;
+    await ensureClientProfile(email);
+    closeClientLogin();
+    document.getElementById('clientOtp').value = '';
+    openClientDashboard();
+  }
+  function clientLogout(){
+    if(sb) sb.auth.signOut();
+    clientSession = null;
+    document.getElementById('clientOverlay').classList.remove('active');
+    document.body.style.overflow = '';
+  }
+
+  async function ensureClientProfile(email){
+    const userId = clientSession.user.id;
+    const { data } = await sb.from('profiles').select('*').eq('id', userId).maybeSingle();
+    if(!data){
+      await sb.from('profiles').insert({ id: userId, email, join_date: new Date().toISOString(), prs: [], progress_photos: [], program: PROGRAMS[0] ? PROGRAMS[0].name : null });
+    }
+  }
+
+  async function getClientProfile(){
+    const { data } = await sb.from('profiles').select('*').eq('id', clientSession.user.id).maybeSingle();
+    return data;
+  }
+
+  // ============ CLIENT DASHBOARD ============
+  async function openClientDashboard(){
+    document.getElementById('clientOverlay').classList.add('active');
+    document.body.style.overflow = 'hidden';
+    await renderClientDashboard();
+  }
+  async function renderClientDashboard(){
+    const profile = await getClientProfile();
+    if(!profile) return;
+
+    document.getElementById('clientDashName').textContent = profile.name ? `Hi ${profile.name}` : profile.email;
+    document.getElementById('clientPhoneField').value = profile.phone || '';
+
+    const sel = document.getElementById('clientProgramSelect');
+    sel.innerHTML = PROGRAMS.map(p => `<option value="${escapeAttr(p.name)}" ${p.name===profile.program?'selected':''}>${escapeHtml(p.name)}</option>`).join('');
+
+    const joinDate = profile.join_date ? new Date(profile.join_date) : new Date();
+    const days = Math.max(0, Math.floor((Date.now() - joinDate.getTime()) / 86400000));
+    document.getElementById('clientJoinDate').textContent = joinDate.toLocaleDateString();
+    document.getElementById('clientDaysActive').textContent = days;
+
+    const banner = document.getElementById('clientDiscountBanner');
+    let bannerHtml = '';
+    if(days >= DISCOUNT_DAYS){
+      bannerHtml += `<div style="background:var(--orange-tint); border:1px solid var(--orange); border-radius:8px; padding:16px 20px; margin-bottom:14px;">🎉 <strong>You've unlocked your loyalty discount!</strong> Use code <strong>${DISCOUNT_CODE}</strong> on your next renewal.</div>`;
+    } else {
+      const remaining = DISCOUNT_DAYS - days;
+      bannerHtml += `<div style="background:var(--dash-card); border:1px solid var(--dash-border); border-radius:8px; padding:16px 20px; margin-bottom:14px; font-size:13px; color:var(--dash-dim);">Train ${remaining} more day${remaining===1?'':'s'} to unlock your loyalty discount.</div>`;
+    }
+    try{
+      const { data: specials } = await sb.from('discounts').select('*').or(`client_id.eq.${clientSession.user.id},client_id.is.null`);
+      if(specials && specials.length){
+        specials.forEach(d=>{
+          bannerHtml += `<div style="background:var(--orange-tint); border:1px solid var(--orange); border-radius:8px; padding:16px 20px; margin-bottom:14px;">🎁 <strong>Special discount for you!</strong> Use code <strong>${escapeHtml(d.code)}</strong> for ${d.percent_off}% off.</div>`;
+        });
+      }
+    }catch(e){ /* discounts table not set up yet */ }
+    banner.innerHTML = bannerHtml;
+
+    const prList = document.getElementById('clientPrList');
+    const prs = profile.prs || [];
+    prList.innerHTML = prs.length ? prs.map((pr,i)=>`
+      <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--line); padding:8px 0;">
+        <span>${escapeHtml(pr.lift)}</span>
+        <span style="font-family:var(--mono);">${escapeHtml(String(pr.weight))} kg <button onclick="deleteClientPr(${i})" style="margin-left:12px; color:var(--orange);">×</button></span>
+      </div>
+    `).join('') : '<p style="font-size:13px;color:#777;">No PRs logged yet — add your first one below.</p>';
+
+    const photoGrid = document.getElementById('clientPhotoGrid');
+    const photos = profile.progress_photos || [];
+    photoGrid.innerHTML = photos.map(url => `<img src="${escapeAttr(url)}" style="width:100%; aspect-ratio:1; object-fit:cover; border-radius:4px;">`).join('');
+  }
+
+  async function saveClientProgram(){
+    const program = document.getElementById('clientProgramSelect').value;
+    await sb.from('profiles').update({ program }).eq('id', clientSession.user.id);
+  }
+
+  async function saveClientPhone(){
+    const phone = document.getElementById('clientPhoneField').value.trim();
+    await sb.from('profiles').update({ phone }).eq('id', clientSession.user.id);
+  }
+
+  async function addClientPr(){
+    const lift = document.getElementById('prLift').value.trim();
+    const weight = document.getElementById('prWeight').value.trim();
+    if(!lift || !weight){ alert('Add both a lift name and a weight.'); return; }
+    const profile = await getClientProfile();
+    const prs = profile.prs || [];
+    prs.push({ lift, weight, date: new Date().toISOString() });
+    await sb.from('profiles').update({ prs }).eq('id', clientSession.user.id);
+    document.getElementById('prLift').value = '';
+    document.getElementById('prWeight').value = '';
+    renderClientDashboard();
+  }
+  async function deleteClientPr(i){
+    const profile = await getClientProfile();
+    const prs = profile.prs || [];
+    prs.splice(i,1);
+    await sb.from('profiles').update({ prs }).eq('id', clientSession.user.id);
+    renderClientDashboard();
+  }
+
+  async function uploadClientPhoto(){
+    const file = document.getElementById('clientPhotoFile').files[0];
+    if(!file){ alert('Choose a photo first.'); return; }
+    try{
+      const path = `${clientSession.user.id}/${Date.now()}_${file.name}`;
+      const { error } = await sb.storage.from('progress-photos').upload(path, file);
+      if(error) throw error;
+      const url = sb.storage.from('progress-photos').getPublicUrl(path).data.publicUrl;
+      const profile = await getClientProfile();
+      const photos = profile.progress_photos || [];
+      photos.push(url);
+      await sb.from('profiles').update({ progress_photos: photos }).eq('id', clientSession.user.id);
+      document.getElementById('clientPhotoFile').value = '';
+      renderClientDashboard();
+    }catch(e){
+      console.error(e);
+      alert('Photo upload failed. Check your Supabase storage bucket/policies.');
+    }
+  }
+
+  // ============ RESTORE CLIENT SESSION ON RELOAD ============
+  if(sb){
+    sb.auth.getSession().then(({ data })=>{
+      if(data && data.session) clientSession = data.session;
+    });
+  }
+
+  // ============ INIT ============
+  renderCart();
+  loadAllData();
+</script>
+
+</body>
+</html>
