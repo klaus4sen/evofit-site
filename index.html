@@ -1443,7 +1443,7 @@
   // ============ EDITABLE SETTINGS ============
   const WHATSAPP_NUMBER = "966598790231"; // corrected 996 -> 966 (Saudi country code) — please double-check this is right
   const CURRENCY = "SAR";
-  const ADMIN_PASSWORD = "Fuckyou"; // client-side only, not real security — visible in page source to anyone who looks
+  const COACH_EMAIL = "evofit67@gmail.com"; // fixed identifier only — the real password lives in Supabase, never here
 
   // ============ SUPABASE CONFIG (real accounts, PRs, photos, videos) ============
   // 1. Create a free project at supabase.com
@@ -2292,9 +2292,10 @@
     return true; // let the href continue to WhatsApp
   }
 
-  // ============ COACH LOGIN ============
+  // ============ COACH LOGIN (real Supabase auth — password lives only in Supabase) ============
   let isLoggedIn = false;
   function openLogin(){
+    if(isLoggedIn){ openDashboard(); return; }
     document.getElementById('loginModal').classList.add('active');
     document.getElementById('overlay').classList.add('active');
   }
@@ -2302,19 +2303,19 @@
     document.getElementById('loginModal').classList.remove('active');
     document.getElementById('overlay').classList.remove('active');
   }
-  function attemptLogin(){
+  async function attemptLogin(){
     const pw = document.getElementById('loginPassword').value;
-    if(pw === ADMIN_PASSWORD){
-      isLoggedIn = true;
-      closeLogin();
-      document.getElementById('loginPassword').value = '';
-      openDashboard();
-    } else {
-      alert('Incorrect password.');
-    }
+    if(!sb){ alert("Coach login needs Supabase connected — see SETUP.md."); return; }
+    const { error } = await sb.auth.signInWithPassword({ email: COACH_EMAIL, password: pw });
+    if(error){ alert('Incorrect password.'); return; }
+    isLoggedIn = true;
+    closeLogin();
+    document.getElementById('loginPassword').value = '';
+    openDashboard();
   }
   function logout(){
     isLoggedIn = false;
+    if(sb) sb.auth.signOut();
     document.getElementById('adminOverlay').classList.remove('active');
     document.body.style.overflow = '';
   }
@@ -2847,15 +2848,21 @@
     }
   }
 
-  // ============ RESTORE CLIENT SESSION ON RELOAD ============
+  // ============ RESTORE SESSION ON RELOAD (coach vs client) ============
   if(sb){
     sb.auth.getSession().then(({ data })=>{
-      if(data && data.session) clientSession = data.session;
+      if(data && data.session){
+        const email = (data.session.user.email || '').toLowerCase();
+        if(email === COACH_EMAIL.toLowerCase()){
+          isLoggedIn = true; // coach stays logged in — dashboard still only opens via the person-icon/footer button
+        } else {
+          clientSession = data.session;
+        }
+      }
     });
   }
 
-  // ============ INIT ============
-// ============ CONTACT FORM (Web3Forms) ============
+  // ============ CONTACT FORM (Web3Forms) ============
   async function sendContactForm(e){
     e.preventDefault();
     const form = e.target;
