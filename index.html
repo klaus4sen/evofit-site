@@ -592,8 +592,8 @@
           <a href="#ranks" class="btn btn-outline" data-i18n="hero_cta2">See Ranks</a>
         </div>
         <div class="hero-meta reveal reveal-d4">
-          <div><strong>8+</strong><span data-i18n="hero_meta1">Years Coaching</span></div>
-          <div><strong>300+</strong><span data-i18n="hero_meta2">Athletes Trained</span></div>
+          <div><strong>5+</strong><span data-i18n="hero_meta1">Years Coaching</span></div>
+          <div><strong>60+</strong><span data-i18n="hero_meta2">Athletes Trained</span></div>
           <div><strong>50+</strong><span data-i18n="hero_meta3">Meet PRs Set</span></div>
         </div>
       </div>
@@ -1356,7 +1356,7 @@
       process4_title:'تطوير', process4_desc:'الخطط تتطور مع تقدم أرقامك',
       programs_eyebrow:'ما أقدمه', programs_h2:'البرامج', programs_sub:'اختر تركيزًا واحدًا، أو ادمج التدريب والتغذية للحصول على نهج متكامل.',
       ranks_eyebrow:'مستويات التدريب', ranks_h2:'ارفع مستواك', ranks_sub:'كل مستوى يضيف المزيد — متابعات أكثر، تواصل مباشر أكثر، تخصيص أكبر.',
-      tech_eyebrow:'شاهد وتعلم', tech_h2:'مكتبة التقنية', tech_sub:'مقاطع قصيرة عن الحركات التي ستراها في برنامجك — تصحيح الأداء، الأخطاء الشائعة، والإعداد.',
+      tech_eyebrow:'شاهد وتعلم', tech_h2:'مكتبة التكنيك', tech_sub:'مقاطع قصيرة عن الحركات التي ستراها في برنامجك — تصحيح الأداء، الأخطاء الشائعة، والإعداد.',
       log_eyebrow:'من المدونة', log_h2:'ملاحظات تدريبية', log_sub:'قراءات قصيرة عن الأشياء التي تُحدث فرقًا فعليًا.', read_more:'اقرأ المزيد ←',
       shop_eyebrow:'جهّز طلبك', shop_h2:'المتجر', shop_sub:'اختر برنامجًا، حدد المستوى، أضفه للسلة، ثم أكمل الطلب للحصول على تعليمات الدفع.',
       reviews_eyebrow:'نتائج العملاء', reviews_h2:'ماذا يقول عملاؤنا', reviews_sub:'آراء حقيقية من متدربين على برامج EVO FIT.',
@@ -1365,8 +1365,8 @@
       contact_sub:'راسلني مباشرة عبر واتساب — سأساعدك على اختيار البرنامج والمستوى المناسبين لأهدافك.',
       contact_wa_hint:'اضغط "راسلني عبر واتساب" أدناه أو استخدم هذا الرقم', contact_wa_btn:'راسلني عبر واتساب',
       form_name:'الاسم الكامل', form_email:'البريد الإلكتروني', form_phone:'الهاتف / واتساب', form_goals:'أخبرني عن أهدافك', form_send:'إرسال الرسالة',
-      footer_cta_h2:'لنطوّر قوتك معًا.', footer_cta_btn:'ابدأ طلبك',
-      footer_copy:'EVO FIT © 2026 · تدريب بواسطة [اسمك] · الدمام، السعودية', footer_coach_login:'دخول المدرب',
+      footer_cta_h2:'جاهز تشوف التطور؟.', footer_cta_btn:'ابدأ طلبك',
+      footer_copy:'EVO FIT © 2026 · تدريب بواسطة [عبدالرحمن الطيب] · الدمام، السعودية', footer_coach_login:'دخول المدرب',
       checkout_eyebrow:'الخطوة الأخيرة', checkout_h3:'أكمل طلبك',
       pay_bank:'البنك', pay_account:'اسم الحساب', pay_iban:'الآيبان', pay_whatsapp:'واتساب',
       checkout_note:'حوّل المبلغ الموضح أعلاه إلى الآيبان، ثم اضغط الزر أدناه — سيفتح واتساب مع تفاصيل طلبك جاهزة. أرسل إيصال الدفع في تلك المحادثة وسأقوم بتفعيل برنامجك.',
@@ -1684,7 +1684,7 @@
   // ============ TRAINER / ATHLETE PROFILE (public render) ============
   function renderTrainerOnSite(){
     const t = TRAINER;
-    document.getElementById('coachName').textContent = t.name || '[Your Name]';
+    document.getElementById('coachName').textContent = t.name || '[Abdulrahman Altayeb]';
     document.getElementById('coachAge').textContent = t.age ? `Age ${t.age}` : '';
     document.getElementById('coachDiscipline').textContent = t.discipline || 'Coach';
     document.getElementById('coachBio').textContent = t.bio || '';
