@@ -108,7 +108,6 @@
   .nav{display:flex; align-items:center; justify-content:space-between; max-width:1280px; margin:0 auto; padding:0 40px;}
   @media (max-width:700px){.nav{padding:0 22px;}}
   .logo{font-family:var(--serif); font-style:italic; font-size:22px; direction:ltr; unicode-bidi:isolate;}
-  .logo span{color:var(--orange);}
   .nav-right{display:flex; align-items:center; gap:22px;}
   .cart-btn{display:flex; align-items:center; gap:8px; font-family:var(--mono); font-size:12px; padding:8px;}
   .cart-count{background:var(--black); color:var(--white); width:19px; height:19px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:10px;}
@@ -361,6 +360,8 @@
   .dash-logo-row{padding:0 8px; margin-bottom:26px;}
   .dash-logo-row .logo{color:var(--dash-text); font-size:20px;}
   .dash-logo-row .logo span{color:var(--orange);}
+  #siteLogo .logo-evo{color:var(--orange);}
+  #siteLogo .logo-fit{color:var(--text);}
   .dash-tag{font-family:var(--mono); font-size:10px; color:var(--dash-dim); text-transform:uppercase; letter-spacing:.06em; padding:0 8px; margin-bottom:24px; display:block;}
   .dash-nav{display:flex; flex-direction:column; gap:3px; flex:1;}
   .dash-nav-item{display:flex; align-items:center; gap:12px; padding:12px 14px; border-radius:9px; font-family:var(--body); font-size:13px; font-weight:500; color:#a6a6ab; background:none; border:none; cursor:pointer; text-align:left; width:100%; transition:background .2s ease, color .2s ease;}
@@ -515,7 +516,7 @@
 
 <header id="siteHeader">
   <div class="nav">
-    <a href="#home" class="logo split-chars" id="siteLogo" data-text="EVO FIT"><span style="color:var(--orange);">EVO</span> FIT</a>
+    <a href="#home" class="logo split-chars" id="siteLogo" data-text="EVO FIT"><span class="logo-evo">EVO</span> <span class="logo-fit">FIT</span></a>
     <div class="nav-right">
       <button class="cart-btn" onclick="toggleLang()" aria-label="Toggle language" id="langBtn" title="العربية">
         <span style="font-family:var(--mono); font-size:12px; letter-spacing:.04em;">EN / AR</span>
