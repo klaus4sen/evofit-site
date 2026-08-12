@@ -2267,26 +2267,43 @@
   }
 
   function renderCheckoutSummary(){
-    const summaryEl = document.getElementById('checkoutSummary');
-    const subtotal = cartTotal();
-    const discountAmt = appliedPromo ? Math.round(subtotal * appliedPromo.percent / 100) : 0;
-    const total = subtotal - discountAmt;
+  const summaryEl = document.getElementById('checkoutSummary');
+  const subtotal = cartTotal();
+  const discountAmt = appliedPromo ? Math.round(subtotal * appliedPromo.percent / 100) : 0;
+  const total = subtotal - discountAmt;
 
-    let html = cart.map(i => `
-      <div><span>${escapeHtml(i.program)} — ${escapeHtml(i.tier)} ×${i.qty}</span><span>${i.price * i.qty} ${CURRENCY}</span></div>
-    `).join('');
-    if(appliedPromo){
-      html += `<div><span>Discount (${escapeHtml(appliedPromo.code)})</span><span>−${discountAmt} ${CURRENCY}</span></div>`;
-    }
-    html += `<div style="border-top:1px solid var(--line); padding-top:10px; margin-top:6px; font-weight:700;"><span>Total</span><span>${total} ${CURRENCY}</span></div>`;
-    summaryEl.innerHTML = html;
-
-    let msg = "Hi! I'd like to order:%0A";
-    cart.forEach(i => { msg += `- ${i.program} (${i.tier}) x${i.qty} = ${i.price*i.qty} ${CURRENCY}%0A`; });
-    if(appliedPromo) msg += `Promo code: ${appliedPromo.code} (−${discountAmt} ${CURRENCY})%0A`;
-    msg += `Total: ${total} ${CURRENCY}%0AI've sent the bank transfer, receipt attached.`;
-    document.getElementById('checkoutWaLink').href = "https://wa.me/" + WHATSAPP_NUMBER + "?text=" + msg;
+  let html = cart.map(i => `
+    <div><span>${escapeHtml(i.program)} — ${escapeHtml(i.tier)} ×${i.qty}</span><span>${i.price * i.qty} ${CURRENCY}</span></div>
+  `).join('');
+  if(appliedPromo){
+    html += `<div><span>Discount (${escapeHtml(appliedPromo.code)})</span><span>−${discountAmt} ${CURRENCY}</span></div>`;
   }
+  html += `<div style="border-top:1px solid var(--line); padding-top:10px; margin-top:6px; font-weight:700;"><span>Total</span><span>${total} ${CURRENCY}</span></div>`;
+  summaryEl.innerHTML = html;
+
+  const isAr = currentLang === 'ar';
+  let msg = isAr
+    ? "مرحباً! قمت للتو بشراء التالي من EVO FIT:%0A%0A"
+    : "Hi! I just purchased the following on EVO FIT:%0A%0A";
+
+  cart.forEach(i => {
+    msg += isAr
+      ? `• ${i.program} (${i.tier}) × ${i.qty} — ${i.price*i.qty} ${currencyLabel()}%0A`
+      : `• ${i.program} (${i.tier}) x${i.qty} — ${i.price*i.qty} ${currencyLabel()}%0A`;
+  });
+
+  if(appliedPromo){
+    msg += isAr
+      ? `كود الخصم: ${appliedPromo.code} (−${discountAmt} ${currencyLabel()})%0A`
+      : `Promo code: ${appliedPromo.code} (−${discountAmt} ${currencyLabel()})%0A`;
+  }
+
+  msg += isAr
+    ? `%0Aالإجمالي المدفوع: ${total} ${currencyLabel()}%0A%0Aقمت بإتمام التحويل البنكي، والإيصال مرفق أدناه.`
+    : `%0ATotal paid: ${total} ${currencyLabel()}%0A%0AI've completed the bank transfer, receipt attached below.`;
+
+  document.getElementById('checkoutWaLink').href = "https://wa.me/" + WHATSAPP_NUMBER + "?text=" + msg;
+}
 
   // ============ SAVE ORDER ON CHECKOUT (feeds the Reports tab) ============
   let orderAlreadySaved = false;
