@@ -374,8 +374,9 @@
   .dash-logout-row button:hover{color:#fff; background:var(--dash-card); border-color:var(--dash-card);}
 
   .dash-main{flex:1; overflow-y:auto; padding:30px 36px 90px; color:var(--dash-text);}
-  .dash-topbar{display:flex; justify-content:space-between; align-items:center; margin-bottom:26px;}
-  .dash-topbar h2{font-family:var(--serif); font-style:italic; font-size:28px; color:#fff;}
+  .dash-topbar{display:flex; justify-content:space-between; align-items:center; margin-bottom:26px; gap:14px; flex-wrap:wrap;}
+  .dash-topbar h2{font-family:var(--serif); font-style:italic; font-size:28px; color:#fff; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .dash-topbar > button{flex-shrink:0;}
 
   .admin-tab-panel{display:flex; flex-direction:column; gap:18px;}
   .admin-row{background:var(--dash-card); border:1px solid var(--dash-border); border-radius:12px; padding:20px; display:flex; flex-direction:column; gap:10px; position:relative;}
@@ -1212,6 +1213,11 @@
     <p class="checkout-note" style="margin:6px 0 6px;">Notes to this client (workout split, supplements, reminders, anything else)</p>
     <textarea class="modal-field" id="planCoachNotes" rows="4" placeholder="e.g. Push/Pull/Legs split, creatine 5g daily, prioritize sleep this week..."></textarea>
 
+    <p class="checkout-note" style="margin:6px 0 6px;">Program files (PDF, Excel — training plans, spreadsheets, anything to share)</p>
+    <div id="planFilesList" style="display:flex; flex-direction:column; gap:8px; margin-bottom:14px;"></div>
+    <input type="file" id="planFileUpload" accept=".pdf,.xlsx,.xls,.csv,.doc,.docx" style="margin-bottom:10px;">
+    <button class="btn btn-outline btn-sm" style="margin-bottom:16px;" onclick="uploadClientFile()">Upload File</button>
+
     <button class="btn btn-primary btn-block" onclick="saveClientPlan()">Save Plan</button>
     <button class="btn btn-outline btn-block" style="margin-top:12px;" onclick="closeEditPlan()">Cancel</button>
   </div>
@@ -1260,6 +1266,11 @@
     <h3 class="report-section-title">Notes from your coach</h3>
     <div class="dash-card" style="margin-bottom:18px;" id="clientNotesCard">
       <div id="clientCoachNotesBox" style="font-size:14px; line-height:1.7; white-space:pre-wrap; color:var(--dash-text);"></div>
+    </div>
+
+    <h3 class="report-section-title">Program files</h3>
+    <div class="dash-card" style="margin-bottom:18px;" id="clientFilesCard">
+      <div id="clientFilesList" style="display:flex; flex-direction:column; gap:10px;"></div>
     </div>
 
     <h3 class="report-section-title">Personal records</h3>
@@ -2223,9 +2234,11 @@
       return;
     }
     try{
-      const { data, error } = await sb.from('discounts').select('*').ilike('code', code);
+      const { data, error } = await sb.rpc('client_check_discount', {
+        p_code: code, p_token: clientSession ? clientSession.token : null
+      });
       if(error) throw error;
-      const match = (data||[]).find(d => !d.client_id || (clientSession && d.client_id === clientSession.id));
+      const match = data && data.length ? data[0] : null;
       if(match){
         appliedPromo = { code: match.code, percent: match.percent_off };
         msgEl.style.color = '#4ade80';
@@ -2761,7 +2774,7 @@
       bannerHtml += `<div style="background:var(--dash-card); border:1px solid var(--dash-border); border-radius:8px; padding:16px 20px; margin-bottom:14px; font-size:13px; color:var(--dash-dim);">Train ${remaining} more day${remaining===1?'':'s'} to unlock your loyalty discount.</div>`;
     }
     try{
-      const { data: specials } = await sb.from('discounts').select('*').or(`client_id.eq.${profile.id},client_id.is.null`);
+      const { data: specials } = await sb.rpc('client_get_specials', { p_token: clientSession.token });
       if(specials && specials.length){
         specials.forEach(d=>{
           bannerHtml += `<div style="background:var(--orange-tint); border:1px solid var(--orange); border-radius:8px; padding:16px 20px; margin-bottom:14px;">🎁 <strong>Special discount for you!</strong> Use code <strong>${escapeHtml(d.code)}</strong> for ${d.percent_off}% off.</div>`;
@@ -2792,6 +2805,16 @@
     const notesText = profile.coach_notes || '';
     document.getElementById('clientCoachNotesBox').textContent = notesText || "No notes from your coach yet.";
     document.getElementById('clientNotesCard').style.display = notesText ? '' : 'none';
+
+    const files = profile.files || [];
+    const filesListEl = document.getElementById('clientFilesList');
+    filesListEl.innerHTML = files.length ? files.map(f => `
+      <a href="${escapeAttr(f.url)}" target="_blank" rel="noopener" style="display:flex; justify-content:space-between; align-items:center; padding:10px 14px; border:1px solid var(--dash-border); border-radius:8px; color:var(--dash-text); font-size:13px;">
+        <span>📄 ${escapeHtml(f.name)}</span>
+        <span style="font-family:var(--mono); font-size:10px; color:var(--orange); text-transform:uppercase;">Download</span>
+      </a>
+    `).join('') : '<p style="font-size:13px;color:var(--dash-dim);">No files from your coach yet.</p>';
+    document.getElementById('clientFilesCard').style.display = '';
 
     const prList = document.getElementById('clientPrList');
     const prs = profile.prs || [];
@@ -2894,6 +2917,7 @@
   }
 
   let editPlanClientId = null;
+  let editPlanFiles = [];
   function openEditPlan(clientId){
     const c = ADMIN_CLIENTS_CACHE.find(x => x.id === clientId);
     if(!c) return;
@@ -2911,8 +2935,47 @@
     document.getElementById('planCardio').value = targets.cardio ?? '';
     document.getElementById('planMealPlan').value = c.meal_plan || '';
     document.getElementById('planCoachNotes').value = c.coach_notes || '';
+    editPlanFiles = c.files || [];
+    renderPlanFilesList();
     document.getElementById('editPlanModal').classList.add('active');
     document.getElementById('overlay').classList.add('active');
+  }
+  function renderPlanFilesList(){
+    const el = document.getElementById('planFilesList');
+    el.innerHTML = editPlanFiles.length ? editPlanFiles.map((f,i) => `
+      <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; font-size:13px;">
+        <a href="${escapeAttr(f.url)}" target="_blank" rel="noopener" style="color:var(--text); text-decoration:underline;">📄 ${escapeHtml(f.name)}</a>
+        <button type="button" onclick="removeClientFile(${i})" style="font-family:var(--mono); font-size:11px; color:var(--orange); text-transform:uppercase; text-decoration:underline;">Remove</button>
+      </div>
+    `).join('') : '<p style="font-size:13px;color:var(--muted-2);">No files uploaded yet.</p>';
+  }
+  async function uploadClientFile(){
+    if(!editPlanClientId) return;
+    const file = document.getElementById('planFileUpload').files[0];
+    if(!file){ alert('Choose a file first.'); return; }
+    if(!sb){ alert("Supabase isn't configured — see SETUP.md."); return; }
+    try{
+      const path = `${editPlanClientId}/${Date.now()}_${file.name}`;
+      const { error } = await sb.storage.from('client-files').upload(path, file);
+      if(error) throw error;
+      const url = sb.storage.from('client-files').getPublicUrl(path).data.publicUrl;
+      const { error: rpcErr } = await sb.rpc('admin_add_client_file', { p_client_id: editPlanClientId, p_name: file.name, p_url: url });
+      if(rpcErr) throw rpcErr;
+      editPlanFiles.push({ name: file.name, url });
+      renderPlanFilesList();
+      document.getElementById('planFileUpload').value = '';
+    }catch(e){
+      console.error(e);
+      alert('Upload failed. Make sure the "client-files" storage bucket exists with the right policies.');
+    }
+  }
+  async function removeClientFile(index){
+    if(!editPlanClientId) return;
+    try{
+      await sb.rpc('admin_remove_client_file', { p_client_id: editPlanClientId, p_index: index });
+      editPlanFiles.splice(index, 1);
+      renderPlanFilesList();
+    }catch(e){ alert('Could not remove file: ' + e.message); }
   }
   function closeEditPlan(){
     document.getElementById('editPlanModal').classList.remove('active');
