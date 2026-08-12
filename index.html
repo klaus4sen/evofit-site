@@ -866,7 +866,7 @@
   </div>
 </footer>
 
-<div class="overlay" id="overlay" onclick="toggleCart(false); closeCheckout(); closeLogin(); closeReviewModal(); closeClientLogin();"></div>
+<div class="overlay" id="overlay" onclick="toggleCart(false); closeCheckout(); closeLogin(); closeReviewModal(); closeClientLogin(); closeEditPlan();"></div>
 <div class="cart-drawer" id="cartDrawer">
   <div class="cart-header">
     <h3 data-i18n="cart_title">Your Cart</h3>
@@ -1100,7 +1100,14 @@
         </div>
       </div>
       <div class="admin-tab-panel" id="tab-clients" style="display:none;">
-        <p class="checkout-note" style="margin-bottom:16px; color:var(--dash-dim);">Everyone who has logged in with their email. Requires Supabase to be configured.</p>
+        <p class="checkout-note" style="margin-bottom:6px; color:var(--dash-dim);">Create a login for a new client — give them the username and password directly (WhatsApp is easiest).</p>
+        <input class="modal-field" id="newClientUsername" placeholder="Username (e.g. omar93)">
+        <input class="modal-field" id="newClientPassword" placeholder="Temporary password">
+        <input class="modal-field" id="newClientName" placeholder="Client's full name">
+        <select class="modal-field" id="newClientProgram"></select>
+        <button class="btn btn-primary btn-sm" onclick="createClientAccount()">Create Client Login</button>
+
+        <h3 class="report-section-title">All clients</h3>
         <div id="adminClientsList"></div>
       </div>
       <div class="admin-tab-panel" id="tab-reports" style="display:none;">
@@ -1169,18 +1176,44 @@
 <div class="checkout-modal" id="clientLoginModal">
   <div class="checkout-box">
     <p class="eyebrow" data-i18n="client_login_eyebrow">Client access</p>
-    <h3 id="clientLoginTitle" data-i18n="client_login_h3">Log in with your email</h3>
+    <h3 data-i18n="client_login_h3">Log in to your dashboard</h3>
     <p class="checkout-note" id="clientAuthNote" style="margin-bottom:14px;"></p>
-    <div id="clientEmailStep">
-      <input class="modal-field" id="clientEmail" type="email" placeholder="you@email.com">
-      <button class="btn btn-primary btn-block" onclick="sendClientOtp()" data-i18n="client_send_code">Send Code</button>
-    </div>
-    <div id="clientCodeStep" style="display:none;">
-      <input class="modal-field" id="clientOtp" placeholder="Enter the 6-digit code" data-i18n-ph="client_code_ph">
-      <button class="btn btn-primary btn-block" onclick="verifyClientOtp()" data-i18n="client_verify">Verify &amp; Log In</button>
-      <button class="btn btn-outline btn-block" style="margin-top:12px;" onclick="backToEmailStep()" data-i18n="client_diff_email">Use a different email</button>
-    </div>
+    <input class="modal-field" id="clientUsername" placeholder="Username" data-i18n-ph="client_username_ph" autocapitalize="off" autocomplete="username">
+    <input class="modal-field" id="clientPassword" type="password" placeholder="Password" data-i18n-ph="client_password_ph" autocomplete="current-password">
+    <button class="btn btn-primary btn-block" onclick="clientLoginSubmit()" data-i18n="client_verify">Log In</button>
     <button class="btn btn-outline btn-block" style="margin-top:12px;" onclick="closeClientLogin()" data-i18n="client_cancel">Cancel</button>
+  </div>
+</div>
+
+<div class="checkout-modal" id="editPlanModal">
+  <div class="checkout-box">
+    <p class="eyebrow">Coach assignment</p>
+    <h3 id="editPlanClientName" style="margin-bottom:20px;">Edit plan</h3>
+
+    <p class="checkout-note" style="margin:0 0 6px;">Macros (leave blank to hide from client)</p>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+      <input class="modal-field" id="planCalories" type="number" placeholder="Calories">
+      <input class="modal-field" id="planProtein" type="number" placeholder="Protein (g)">
+      <input class="modal-field" id="planCarbs" type="number" placeholder="Carbs (g)">
+      <input class="modal-field" id="planFat" type="number" placeholder="Fat (g)">
+    </div>
+
+    <p class="checkout-note" style="margin:6px 0 6px;">Daily targets (leave blank to hide from client)</p>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+      <input class="modal-field" id="planSteps" type="number" placeholder="Steps / day">
+      <input class="modal-field" id="planWater" type="number" step="0.1" placeholder="Water (liters)">
+      <input class="modal-field" id="planSleep" type="number" step="0.5" placeholder="Sleep (hours)">
+      <input class="modal-field" id="planCardio" type="number" placeholder="Cardio (min/day)">
+    </div>
+
+    <p class="checkout-note" style="margin:6px 0 6px;">Meal plan</p>
+    <textarea class="modal-field" id="planMealPlan" rows="5" placeholder="Breakfast, lunch, dinner, snacks..."></textarea>
+
+    <p class="checkout-note" style="margin:6px 0 6px;">Notes to this client (workout split, supplements, reminders, anything else)</p>
+    <textarea class="modal-field" id="planCoachNotes" rows="4" placeholder="e.g. Push/Pull/Legs split, creatine 5g daily, prioritize sleep this week..."></textarea>
+
+    <button class="btn btn-primary btn-block" onclick="saveClientPlan()">Save Plan</button>
+    <button class="btn btn-outline btn-block" style="margin-top:12px;" onclick="closeEditPlan()">Cancel</button>
   </div>
 </div>
 
@@ -1205,7 +1238,31 @@
       <p style="font-size:13px; color:var(--dash-dim);">Member since <strong id="clientJoinDate" style="color:#fff;">—</strong> · <strong id="clientDaysActive" style="color:#fff;">—</strong> days training with EVO FIT.</p>
     </div>
 
-    <h3 class="report-section-title" style="margin-top:0;">Personal records</h3>
+    <h3 class="report-section-title" style="margin-top:0;">My stats</h3>
+    <div class="dash-card" style="margin-bottom:18px; display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:14px;">
+      <div><label style="font-family:var(--mono); font-size:11px; text-transform:uppercase; color:var(--dash-dim); display:block; margin-bottom:6px;">Age</label><input class="modal-field" id="clientAgeField" type="number" style="margin:0;" onchange="saveClientStats()"></div>
+      <div><label style="font-family:var(--mono); font-size:11px; text-transform:uppercase; color:var(--dash-dim); display:block; margin-bottom:6px;">Weight (kg)</label><input class="modal-field" id="clientWeightField" type="number" style="margin:0;" onchange="saveClientStats()"></div>
+      <div><label style="font-family:var(--mono); font-size:11px; text-transform:uppercase; color:var(--dash-dim); display:block; margin-bottom:6px;">Height (cm)</label><input class="modal-field" id="clientHeightField" type="number" style="margin:0;" onchange="saveClientStats()"></div>
+      <div style="grid-column:1/-1;"><label style="font-family:var(--mono); font-size:11px; text-transform:uppercase; color:var(--dash-dim); display:block; margin-bottom:6px;">Goal</label><input class="modal-field" id="clientGoalField" style="margin:0;" placeholder="e.g. Build strength, lose fat, first meet..." onchange="saveClientStats()"></div>
+    </div>
+
+    <h3 class="report-section-title">My macros &amp; meal plan</h3>
+    <div class="dash-card" style="margin-bottom:18px;">
+      <div class="mini-stat-row" id="clientMacrosRow" style="margin-bottom:16px;"></div>
+      <div id="clientMealPlanBox" style="font-size:14px; line-height:1.7; white-space:pre-wrap; color:var(--dash-text);"></div>
+    </div>
+
+    <h3 class="report-section-title">Daily targets</h3>
+    <div class="dash-card" style="margin-bottom:18px;" id="clientTargetsCard">
+      <div class="mini-stat-row" id="clientTargetsRow"></div>
+    </div>
+
+    <h3 class="report-section-title">Notes from your coach</h3>
+    <div class="dash-card" style="margin-bottom:18px;" id="clientNotesCard">
+      <div id="clientCoachNotesBox" style="font-size:14px; line-height:1.7; white-space:pre-wrap; color:var(--dash-text);"></div>
+    </div>
+
+    <h3 class="report-section-title">Personal records</h3>
     <div class="dash-card" style="margin-bottom:18px;">
       <div id="clientPrList" style="display:flex; flex-direction:column; gap:10px; margin-bottom:16px;"></div>
       <div class="admin-actions-row">
@@ -1269,8 +1326,8 @@
       review_photo_label:'Add a progress photo (optional)', review_submit:'Submit Review', review_cancel:'Cancel',
       login_eyebrow:'Coach access', login_h3:'Log in to your dashboard', login_pw_ph:'Password', login_submit:'Log In', login_cancel:'Cancel',
       cart_title:'Your Cart', cart_subtotal:'Subtotal', cart_checkout:'Proceed to Checkout',
-      client_login_eyebrow:'Client access', client_login_h3:'Log in with your email', client_send_code:'Send Code',
-      client_code_ph:'Enter the 6-digit code', client_verify:'Verify & Log In', client_diff_email:'Use a different email', client_cancel:'Cancel',
+      client_login_eyebrow:'Client access', client_login_h3:'Log in to your dashboard',
+      client_username_ph:'Username', client_password_ph:'Password', client_verify:'Log In', client_cancel:'Cancel',
       shop_add_to_cart:'Add to Cart',
       coach_eyebrow:'Meet your coach',
       promo_ph:'Promo code (optional)', promo_apply:'Apply',
@@ -1314,8 +1371,8 @@
       review_photo_label:'أضف صورة لتقدمك (اختياري)', review_submit:'إرسال التقييم', review_cancel:'إلغاء',
       login_eyebrow:'دخول المدرب', login_h3:'تسجيل الدخول إلى لوحة التحكم', login_pw_ph:'كلمة المرور', login_submit:'تسجيل الدخول', login_cancel:'إلغاء',
       cart_title:'سلتك', cart_subtotal:'الإجمالي الفرعي', cart_checkout:'إتمام الطلب',
-      client_login_eyebrow:'دخول العميل', client_login_h3:'تسجيل الدخول عبر بريدك الإلكتروني', client_send_code:'إرسال الرمز',
-      client_code_ph:'أدخل الرمز المكوّن من 6 أرقام', client_verify:'تحقق وسجّل الدخول', client_diff_email:'استخدم بريدًا إلكترونيًا آخر', client_cancel:'إلغاء',
+      client_login_eyebrow:'دخول العميل', client_login_h3:'تسجيل الدخول إلى لوحتك',
+      client_username_ph:'اسم المستخدم', client_password_ph:'كلمة المرور', client_verify:'تسجيل الدخول', client_cancel:'إلغاء',
       shop_add_to_cart:'أضف إلى السلة',
       coach_eyebrow:'تعرف على مدربك',
       promo_ph:'كود الخصم (اختياري)', promo_apply:'تطبيق',
@@ -2168,7 +2225,7 @@
     try{
       const { data, error } = await sb.from('discounts').select('*').ilike('code', code);
       if(error) throw error;
-      const match = (data||[]).find(d => !d.client_id || (clientSession && d.client_id === clientSession.user.id));
+      const match = (data||[]).find(d => !d.client_id || (clientSession && d.client_id === clientSession.id));
       if(match){
         appliedPromo = { code: match.code, percent: match.percent_off };
         msgEl.style.color = '#4ade80';
@@ -2229,11 +2286,10 @@
   async function confirmOrderAndSendWhatsApp(){
     if(sb && !orderAlreadySaved){
       try{
-        const profile = clientSession ? await getClientProfile() : null;
         const rows = cart.map(i => ({
-          client_id: clientSession ? clientSession.user.id : null,
-          client_email: profile ? profile.email : null,
-          client_name: profile ? (profile.name || profile.email) : 'Guest',
+          client_id: clientSession ? clientSession.id : null,
+          client_email: null,
+          client_name: clientSession ? (clientSession.name || 'Client') : 'Guest',
           program: i.program,
           tier: i.tier,
           price: i.price,
@@ -2467,19 +2523,6 @@
     renderTechGrid();
   }
 
-  async function renderAdminClients(){
-    const el = document.getElementById('adminClientsList');
-    if(!sb){ el.innerHTML = '<p style="font-size:14px;color:#777;">Connect Supabase to see registered clients.</p>'; return; }
-    const { data, error } = await sb.from('profiles').select('*').order('join_date', { ascending:false });
-    if(error || !data){ el.innerHTML = '<p style="font-size:14px;color:#777;">Could not load clients (check RLS policies in SETUP.md).</p>'; return; }
-    el.innerHTML = data.map(c => `
-      <div class="admin-review-row">
-        <div class="admin-review-top"><strong>${escapeHtml(c.name||c.email)}</strong><span>${escapeHtml(c.phone||'no WhatsApp on file')}</span></div>
-        <div style="font-family:var(--mono); font-size:11px; color:#999;">Program: ${escapeHtml(c.program||'—')} · Joined ${c.join_date ? new Date(c.join_date).toLocaleDateString() : '—'}</div>
-      </div>
-    `).join('');
-  }
-
   async function renderAdminReports(){
     const statsEl = document.getElementById('reportStatCards');
     const chartEl = document.getElementById('reportMonthlyChart');
@@ -2549,8 +2592,8 @@
     const pendingCount = orders.filter(o => o.status === 'pending').length;
     document.getElementById('miniStatPending').textContent = pendingCount;
     try{
-      const { count } = await sb.from('profiles').select('*', { count:'exact', head:true });
-      document.getElementById('miniStatClients').textContent = (count ?? '—');
+      const { data: cdata, error: cerr } = await sb.rpc('admin_list_clients');
+      document.getElementById('miniStatClients').textContent = (cerr || !cdata) ? '—' : cdata.length;
     }catch(e){ document.getElementById('miniStatClients').textContent = '—'; }
 
     loadCoachNotes();
@@ -2602,11 +2645,13 @@
     const clientSel = document.getElementById('discountClient');
     if(!sb){ listEl.innerHTML = '<p style="font-size:14px;color:#777;">Connect Supabase to manage discounts.</p>'; return; }
 
-    const { data: clients } = await sb.from('profiles').select('id,name,email');
-    if(clients){
-      clientSel.innerHTML = '<option value="">— Anyone (general code) —</option>' +
-        clients.map(c => `<option value="${c.id}">${escapeHtml(c.name||c.email)}</option>`).join('');
-    }
+    try{
+      const { data: clients } = await sb.rpc('admin_list_clients');
+      if(clients){
+        clientSel.innerHTML = '<option value="">— Anyone (general code) —</option>' +
+          clients.map(c => `<option value="${c.id}">${escapeHtml(c.name||c.username)}</option>`).join('');
+      }
+    }catch(e){}
 
     const { data: discounts, error } = await sb.from('discounts').select('*').order('created_at', { ascending:false });
     if(error || !discounts){ listEl.innerHTML = '<p style="font-size:14px;color:#777;">Could not load discounts.</p>'; return; }
@@ -2640,65 +2685,49 @@
     renderAdminDiscounts();
   }
 
-  let clientSession = null;
+  let clientSession = null; // { id, token, name, program }
 
   function openClientArea(){
     if(!sb){
-      alert("Client accounts need Supabase connected first — see SETUP.md. Once that's set up, this button lets clients log in with their email.");
+      alert("Client accounts need Supabase connected first — see SETUP.md.");
       return;
     }
     if(clientSession){ openClientDashboard(); return; }
     document.getElementById('clientLoginModal').classList.add('active');
     document.getElementById('overlay').classList.add('active');
-    document.getElementById('clientAuthNote').textContent = "We'll email you a one-time code — no password needed.";
+    document.getElementById('clientAuthNote').textContent = "";
   }
   function closeClientLogin(){
     document.getElementById('clientLoginModal').classList.remove('active');
     document.getElementById('overlay').classList.remove('active');
   }
-  async function sendClientOtp(){
-    const email = document.getElementById('clientEmail').value.trim();
-    if(!email.includes('@')){ alert('Enter a valid email address.'); return; }
-    const { error } = await sb.auth.signInWithOtp({ email });
-    if(error){ alert('Could not send code: ' + error.message); return; }
-    document.getElementById('clientEmailStep').style.display = 'none';
-    document.getElementById('clientCodeStep').style.display = 'block';
-  }
-  function backToEmailStep(){
-    document.getElementById('clientEmailStep').style.display = 'block';
-    document.getElementById('clientCodeStep').style.display = 'none';
-  }
-  async function verifyClientOtp(){
-    const email = document.getElementById('clientEmail').value.trim();
-    const token = document.getElementById('clientOtp').value.trim();
-    const { data, error } = await sb.auth.verifyOtp({ email, token, type: 'email' });
-    if(error){ alert('Incorrect or expired code: ' + error.message); return; }
-    clientSession = data.session;
-    await ensureClientProfile(email);
+  async function clientLoginSubmit(){
+    const username = document.getElementById('clientUsername').value.trim();
+    const password = document.getElementById('clientPassword').value;
+    if(!username || !password){ alert('Enter your username and password.'); return; }
+    const { data, error } = await sb.rpc('client_login', { p_username: username, p_password: password });
+    if(error || !data || !data.length){ alert('Incorrect username or password.'); return; }
+    const row = data[0];
+    clientSession = { id: null, token: row.token, name: row.name, program: row.program };
+    localStorage.setItem('evofit_client_token', row.token);
+    document.getElementById('clientPassword').value = '';
     closeClientLogin();
-    document.getElementById('clientOtp').value = '';
     openClientDashboard();
   }
   function clientLogout(){
-    if(sb) sb.auth.signOut();
     clientSession = null;
+    localStorage.removeItem('evofit_client_token');
     document.getElementById('clientOverlay').classList.remove('active');
     document.body.style.overflow = '';
   }
-
-  async function ensureClientProfile(email){
-    const userId = clientSession.user.id;
-    const { data } = await sb.from('profiles').select('*').eq('id', userId).maybeSingle();
-    if(!data){
-      await sb.from('profiles').insert({ id: userId, email, join_date: new Date().toISOString(), prs: [], progress_photos: [], program: PROGRAMS[0] ? PROGRAMS[0].name : null });
-    }
-  }
-
   async function getClientProfile(){
-    const { data } = await sb.from('profiles').select('*').eq('id', clientSession.user.id).maybeSingle();
-    return data;
+    const token = clientSession ? clientSession.token : localStorage.getItem('evofit_client_token');
+    if(!token) return null;
+    const { data, error } = await sb.rpc('client_get', { p_token: token });
+    if(error || !data || !data.length){ clientLogout(); return null; }
+    clientSession = { id: data[0].id, token, name: data[0].name, program: data[0].program };
+    return data[0];
   }
-
   async function openClientDashboard(){
     document.getElementById('clientOverlay').classList.add('active');
     document.body.style.overflow = 'hidden';
@@ -2708,8 +2737,12 @@
     const profile = await getClientProfile();
     if(!profile) return;
 
-    document.getElementById('clientDashName').textContent = profile.name ? `Hi ${profile.name}` : profile.email;
+    document.getElementById('clientDashName').textContent = profile.name ? `Hi ${profile.name}` : profile.username;
     document.getElementById('clientPhoneField').value = profile.phone || '';
+    document.getElementById('clientAgeField').value = profile.age || '';
+    document.getElementById('clientWeightField').value = profile.weight_kg || '';
+    document.getElementById('clientHeightField').value = profile.height_cm || '';
+    document.getElementById('clientGoalField').value = profile.goal || '';
 
     const sel = document.getElementById('clientProgramSelect');
     sel.innerHTML = PROGRAMS.map(p => `<option value="${escapeAttr(p.name)}" ${p.name===profile.program?'selected':''}>${escapeHtml(p.name)}</option>`).join('');
@@ -2728,7 +2761,7 @@
       bannerHtml += `<div style="background:var(--dash-card); border:1px solid var(--dash-border); border-radius:8px; padding:16px 20px; margin-bottom:14px; font-size:13px; color:var(--dash-dim);">Train ${remaining} more day${remaining===1?'':'s'} to unlock your loyalty discount.</div>`;
     }
     try{
-      const { data: specials } = await sb.from('discounts').select('*').or(`client_id.eq.${clientSession.user.id},client_id.is.null`);
+      const { data: specials } = await sb.from('discounts').select('*').or(`client_id.eq.${profile.id},client_id.is.null`);
       if(specials && specials.length){
         specials.forEach(d=>{
           bannerHtml += `<div style="background:var(--orange-tint); border:1px solid var(--orange); border-radius:8px; padding:16px 20px; margin-bottom:14px;">🎁 <strong>Special discount for you!</strong> Use code <strong>${escapeHtml(d.code)}</strong> for ${d.percent_off}% off.</div>`;
@@ -2736,6 +2769,29 @@
       }
     }catch(e){}
     banner.innerHTML = bannerHtml;
+
+    const macros = profile.macros || {};
+    document.getElementById('clientMacrosRow').innerHTML = ['calories','protein','carbs','fat'].map(k=>`
+      <div class="mini-stat"><div class="label">${k.charAt(0).toUpperCase()+k.slice(1)}</div><div class="value">${macros[k] != null ? macros[k] : '—'}</div></div>
+    `).join('');
+    document.getElementById('clientMealPlanBox').textContent = profile.meal_plan || "Your coach hasn't added a meal plan yet.";
+
+    const targets = profile.targets || {};
+    const targetDefs = [
+      { k:'steps', label:'Steps', unit:'' },
+      { k:'water', label:'Water', unit:'L' },
+      { k:'sleep', label:'Sleep', unit:'hr' },
+      { k:'cardio', label:'Cardio', unit:'min' }
+    ];
+    const hasTargets = targetDefs.some(t => targets[t.k] != null);
+    document.getElementById('clientTargetsRow').innerHTML = hasTargets
+      ? targetDefs.map(t => `<div class="mini-stat"><div class="label">${t.label}</div><div class="value">${targets[t.k] != null ? targets[t.k] + (t.unit ? ' '+t.unit : '') : '—'}</div></div>`).join('')
+      : '';
+    document.getElementById('clientTargetsCard').style.display = hasTargets ? '' : 'none';
+
+    const notesText = profile.coach_notes || '';
+    document.getElementById('clientCoachNotesBox').textContent = notesText || "No notes from your coach yet.";
+    document.getElementById('clientNotesCard').style.display = notesText ? '' : 'none';
 
     const prList = document.getElementById('clientPrList');
     const prs = profile.prs || [];
@@ -2751,16 +2807,19 @@
     photoGrid.innerHTML = photos.map(url => `<img src="${escapeAttr(url)}" style="width:100%; aspect-ratio:1; object-fit:cover; border-radius:4px;">`).join('');
   }
 
-  async function saveClientProgram(){
-    const program = document.getElementById('clientProgramSelect').value;
-    await sb.from('profiles').update({ program }).eq('id', clientSession.user.id);
+  async function clientPatch(patch){
+    await sb.rpc('client_update', { p_token: clientSession.token, p_patch: patch });
   }
-
-  async function saveClientPhone(){
-    const phone = document.getElementById('clientPhoneField').value.trim();
-    await sb.from('profiles').update({ phone }).eq('id', clientSession.user.id);
+  async function saveClientProgram(){ await clientPatch({ program: document.getElementById('clientProgramSelect').value }); }
+  async function saveClientPhone(){ await clientPatch({ phone: document.getElementById('clientPhoneField').value.trim() }); }
+  async function saveClientStats(){
+    await clientPatch({
+      age: document.getElementById('clientAgeField').value,
+      weight_kg: document.getElementById('clientWeightField').value,
+      height_cm: document.getElementById('clientHeightField').value,
+      goal: document.getElementById('clientGoalField').value.trim()
+    });
   }
-
   async function addClientPr(){
     const lift = document.getElementById('prLift').value.trim();
     const weight = document.getElementById('prWeight').value.trim();
@@ -2768,7 +2827,7 @@
     const profile = await getClientProfile();
     const prs = profile.prs || [];
     prs.push({ lift, weight, date: new Date().toISOString() });
-    await sb.from('profiles').update({ prs }).eq('id', clientSession.user.id);
+    await clientPatch({ prs });
     document.getElementById('prLift').value = '';
     document.getElementById('prWeight').value = '';
     renderClientDashboard();
@@ -2777,22 +2836,21 @@
     const profile = await getClientProfile();
     const prs = profile.prs || [];
     prs.splice(i,1);
-    await sb.from('profiles').update({ prs }).eq('id', clientSession.user.id);
+    await clientPatch({ prs });
     renderClientDashboard();
   }
-
   async function uploadClientPhoto(){
     const file = document.getElementById('clientPhotoFile').files[0];
     if(!file){ alert('Choose a photo first.'); return; }
     try{
-      const path = `${clientSession.user.id}/${Date.now()}_${file.name}`;
+      const path = `${clientSession.id}/${Date.now()}_${file.name}`;
       const { error } = await sb.storage.from('progress-photos').upload(path, file);
       if(error) throw error;
       const url = sb.storage.from('progress-photos').getPublicUrl(path).data.publicUrl;
       const profile = await getClientProfile();
       const photos = profile.progress_photos || [];
       photos.push(url);
-      await sb.from('profiles').update({ progress_photos: photos }).eq('id', clientSession.user.id);
+      await clientPatch({ progress_photos: photos });
       document.getElementById('clientPhotoFile').value = '';
       renderClientDashboard();
     }catch(e){
@@ -2801,15 +2859,101 @@
     }
   }
 
+  async function createClientAccount(){
+    const username = document.getElementById('newClientUsername').value.trim();
+    const password = document.getElementById('newClientPassword').value;
+    const name = document.getElementById('newClientName').value.trim();
+    const program = document.getElementById('newClientProgram').value;
+    if(!username || !password){ alert('Enter a username and password.'); return; }
+    const { error } = await sb.rpc('admin_create_client', { p_username: username, p_password: password, p_name: name, p_program: program });
+    if(error){ alert('Could not create client: ' + error.message); return; }
+    document.getElementById('newClientUsername').value = '';
+    document.getElementById('newClientPassword').value = '';
+    document.getElementById('newClientName').value = '';
+    alert('Client account created — send them the username & password.');
+    renderAdminClients();
+  }
+  let ADMIN_CLIENTS_CACHE = [];
+  async function renderAdminClients(){
+    const el = document.getElementById('adminClientsList');
+    const progSel = document.getElementById('newClientProgram');
+    if(progSel) progSel.innerHTML = PROGRAMS.map(p => `<option value="${escapeAttr(p.name)}">${escapeHtml(p.name)}</option>`).join('');
+    if(!sb){ el.innerHTML = '<p style="font-size:14px;color:#777;">Connect Supabase to see registered clients.</p>'; return; }
+    const { data, error } = await sb.rpc('admin_list_clients');
+    if(error || !data){ el.innerHTML = '<p style="font-size:14px;color:#777;">Could not load clients.</p>'; return; }
+    ADMIN_CLIENTS_CACHE = data;
+    el.innerHTML = data.length ? data.map(c => `
+      <div class="admin-review-row">
+        <div class="admin-review-top"><strong>${escapeHtml(c.name||c.username)}</strong><span>@${escapeHtml(c.username)} · ${escapeHtml(c.phone||'no WhatsApp on file')}</span></div>
+        <div style="font-family:var(--mono); font-size:11px; color:#999;">Program: ${escapeHtml(c.program||'—')} · Joined ${c.join_date ? new Date(c.join_date).toLocaleDateString() : '—'}</div>
+        <div class="admin-review-actions">
+          <button onclick="openEditPlan('${c.id}')">Edit Plan</button>
+        </div>
+      </div>
+    `).join('') : '<p style="font-size:14px;color:#777;">No clients yet — create one above.</p>';
+  }
+
+  let editPlanClientId = null;
+  function openEditPlan(clientId){
+    const c = ADMIN_CLIENTS_CACHE.find(x => x.id === clientId);
+    if(!c) return;
+    editPlanClientId = clientId;
+    document.getElementById('editPlanClientName').textContent = 'Edit plan — ' + (c.name || c.username);
+    const macros = c.macros || {};
+    document.getElementById('planCalories').value = macros.calories ?? '';
+    document.getElementById('planProtein').value = macros.protein ?? '';
+    document.getElementById('planCarbs').value = macros.carbs ?? '';
+    document.getElementById('planFat').value = macros.fat ?? '';
+    const targets = c.targets || {};
+    document.getElementById('planSteps').value = targets.steps ?? '';
+    document.getElementById('planWater').value = targets.water ?? '';
+    document.getElementById('planSleep').value = targets.sleep ?? '';
+    document.getElementById('planCardio').value = targets.cardio ?? '';
+    document.getElementById('planMealPlan').value = c.meal_plan || '';
+    document.getElementById('planCoachNotes').value = c.coach_notes || '';
+    document.getElementById('editPlanModal').classList.add('active');
+    document.getElementById('overlay').classList.add('active');
+  }
+  function closeEditPlan(){
+    document.getElementById('editPlanModal').classList.remove('active');
+    document.getElementById('overlay').classList.remove('active');
+  }
+  async function saveClientPlan(){
+    if(!editPlanClientId) return;
+    const numOrNull = (id) => {
+      const v = document.getElementById(id).value;
+      return v === '' ? null : Number(v);
+    };
+    const macros = {
+      calories: numOrNull('planCalories'),
+      protein: numOrNull('planProtein'),
+      carbs: numOrNull('planCarbs'),
+      fat: numOrNull('planFat')
+    };
+    const targets = {
+      steps: numOrNull('planSteps'),
+      water: numOrNull('planWater'),
+      sleep: numOrNull('planSleep'),
+      cardio: numOrNull('planCardio')
+    };
+    const mealPlan = document.getElementById('planMealPlan').value.trim();
+    const coachNotes = document.getElementById('planCoachNotes').value.trim();
+    const { error } = await sb.rpc('admin_set_plan', {
+      p_client_id: editPlanClientId, p_macros: macros, p_meal_plan: mealPlan,
+      p_targets: targets, p_coach_notes: coachNotes
+    });
+    if(error){ alert('Could not save plan: ' + error.message); return; }
+    closeEditPlan();
+    alert('Plan saved — the client will see it in their dashboard.');
+    renderAdminClients();
+  }
+
   if(sb){
+    const savedToken = localStorage.getItem('evofit_client_token');
+    if(savedToken) clientSession = { token: savedToken };
     sb.auth.getSession().then(({ data })=>{
-      if(data && data.session){
-        const email = (data.session.user.email || '').toLowerCase();
-        if(email === COACH_EMAIL.toLowerCase()){
-          isLoggedIn = true;
-        } else {
-          clientSession = data.session;
-        }
+      if(data && data.session && (data.session.user.email||'').toLowerCase() === COACH_EMAIL.toLowerCase()){
+        isLoggedIn = true;
       }
     });
   }
