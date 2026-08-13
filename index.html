@@ -3,6 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- Security: restricts which origins scripts/styles/connections can come from, to reduce damage from any injected/malicious content. -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: https:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.web3forms.com; frame-ancestors 'self'; base-uri 'self'; object-src 'none'; form-action 'self';">
+<meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
+<meta http-equiv="X-Content-Type-Options" content="nosniff">
 <title>EVO FIT — Coaching by [abdulrahman altayeb]</title>
 <link rel="icon" href="favicon.ico" sizes="any">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
@@ -929,7 +933,7 @@
   <div class="checkout-box">
     <p class="eyebrow" data-i18n="login_eyebrow">Coach access</p>
     <h3 data-i18n="login_h3">Log in to your dashboard</h3>
-    <input class="modal-field" type="password" id="loginPassword" placeholder="Password" data-i18n-ph="login_pw_ph">
+    <input class="modal-field" type="password" id="loginPassword" placeholder="Password" data-i18n-ph="login_pw_ph" autocomplete="current-password" maxlength="128">
     <button class="btn btn-primary btn-block" onclick="attemptLogin()" data-i18n="login_submit">Log In</button>
     <button class="btn btn-outline btn-block" style="margin-top:12px;" onclick="closeLogin()" data-i18n="login_cancel">Cancel</button>
   </div>
@@ -1105,8 +1109,8 @@
       </div>
       <div class="admin-tab-panel" id="tab-clients" style="display:none;">
         <p class="checkout-note" style="margin-bottom:6px; color:var(--dash-dim);">Create a login for a new client — give them the username and password directly (WhatsApp is easiest).</p>
-        <input class="modal-field" id="newClientUsername" placeholder="Username (e.g. omar93)">
-        <input class="modal-field" id="newClientPassword" placeholder="Temporary password">
+        <input class="modal-field" id="newClientUsername" placeholder="Username (e.g. omar93)" maxlength="64" autocomplete="off">
+        <input class="modal-field" id="newClientPassword" placeholder="Temporary password" maxlength="128" autocomplete="new-password">
         <input class="modal-field" id="newClientName" placeholder="Client's full name">
         <select class="modal-field" id="newClientProgram"></select>
         <button class="btn btn-primary btn-sm" onclick="createClientAccount()">Create Client Login</button>
@@ -1182,8 +1186,8 @@
     <p class="eyebrow" data-i18n="client_login_eyebrow">Client access</p>
     <h3 data-i18n="client_login_h3">Log in to your dashboard</h3>
     <p class="checkout-note" id="clientAuthNote" style="margin-bottom:14px;"></p>
-    <input class="modal-field" id="clientUsername" placeholder="Username" data-i18n-ph="client_username_ph" autocapitalize="off" autocomplete="username">
-    <input class="modal-field" id="clientPassword" type="password" placeholder="Password" data-i18n-ph="client_password_ph" autocomplete="current-password">
+    <input class="modal-field" id="clientUsername" placeholder="Username" data-i18n-ph="client_username_ph" autocapitalize="off" autocomplete="username" maxlength="64">
+    <input class="modal-field" id="clientPassword" type="password" placeholder="Password" data-i18n-ph="client_password_ph" autocomplete="current-password" maxlength="128">
     <button class="btn btn-primary btn-block" onclick="clientLoginSubmit()" data-i18n="client_verify">Log In</button>
     <button class="btn btn-outline btn-block" style="margin-top:12px;" onclick="closeClientLogin()" data-i18n="client_cancel">Cancel</button>
   </div>
@@ -1459,6 +1463,31 @@
   if (SUPABASE_READY && window.supabase) {
     sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   }
+
+  // --- Basic client-side login throttle -------------------------------
+  // NOTE: this only slows down casual brute-forcing from THIS browser tab.
+  // It is trivial to bypass (clear localStorage / use a different browser /
+  // call the API directly), so it is a UX deterrent, not real security.
+  // Real brute-force protection has to live server-side in Supabase
+  // (rate limiting + account lockout on the client_login function, and
+  // Supabase Auth already rate-limits sign-in attempts for the coach login).
+  function loginThrottleCheck(key, maxAttempts, windowMs){
+    const now = Date.now();
+    let rec;
+    try{ rec = JSON.parse(localStorage.getItem(key) || 'null'); }catch(e){ rec = null; }
+    if(!rec || now - rec.first > windowMs){ rec = { first: now, count: 0, lockUntil: 0 }; }
+    if(rec.lockUntil && now < rec.lockUntil){
+      const secs = Math.ceil((rec.lockUntil - now)/1000);
+      return { blocked: true, secondsLeft: secs };
+    }
+    return { blocked: false, rec };
+  }
+  function loginThrottleRecordFailure(key, rec, maxAttempts, lockMs){
+    rec.count += 1;
+    if(rec.count >= maxAttempts){ rec.lockUntil = Date.now() + lockMs; rec.count = 0; rec.first = Date.now(); }
+    localStorage.setItem(key, JSON.stringify(rec));
+  }
+  function loginThrottleReset(key){ localStorage.removeItem(key); }
 
   async function dbGet(key){
     if (sb) {
@@ -2333,8 +2362,16 @@
   async function attemptLogin(){
     const pw = document.getElementById('loginPassword').value;
     if(!sb){ alert("Coach login needs Supabase connected — see SETUP.md."); return; }
+    const throttleKey = 'evofit_coach_login_throttle';
+    const check = loginThrottleCheck(throttleKey, 5, 10*60*1000);
+    if(check.blocked){ alert(`Too many attempts. Try again in ${check.secondsLeft}s.`); return; }
     const { error } = await sb.auth.signInWithPassword({ email: COACH_EMAIL, password: pw });
-    if(error){ alert('Incorrect password.'); return; }
+    if(error){
+      loginThrottleRecordFailure(throttleKey, check.rec, 5, 5*60*1000);
+      alert('Incorrect password.');
+      return;
+    }
+    loginThrottleReset(throttleKey);
     isLoggedIn = true;
     closeLogin();
     document.getElementById('loginPassword').value = '';
@@ -2721,8 +2758,16 @@
     const username = document.getElementById('clientUsername').value.trim();
     const password = document.getElementById('clientPassword').value;
     if(!username || !password){ alert('Enter your username and password.'); return; }
+    const throttleKey = 'evofit_client_login_throttle';
+    const check = loginThrottleCheck(throttleKey, 5, 10*60*1000);
+    if(check.blocked){ alert(`Too many attempts. Try again in ${check.secondsLeft}s.`); return; }
     const { data, error } = await sb.rpc('client_login', { p_username: username, p_password: password });
-    if(error || !data || !data.length){ alert('Incorrect username or password.'); return; }
+    if(error || !data || !data.length){
+      loginThrottleRecordFailure(throttleKey, check.rec, 5, 5*60*1000);
+      alert('Incorrect username or password.');
+      return;
+    }
+    loginThrottleReset(throttleKey);
     const row = data[0];
     clientSession = { id: null, token: row.token, name: row.name, program: row.program };
     localStorage.setItem('evofit_client_token', row.token);
@@ -2731,6 +2776,8 @@
     openClientDashboard();
   }
   function clientLogout(){
+    const token = clientSession ? clientSession.token : localStorage.getItem('evofit_client_token');
+    if(sb && token){ sb.rpc('client_logout', { p_token: token }).catch(()=>{}); }
     clientSession = null;
     localStorage.removeItem('evofit_client_token');
     document.getElementById('clientOverlay').classList.remove('active');
