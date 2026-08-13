@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <!-- Security: restricts which origins scripts/styles/connections can come from, to reduce damage from any injected/malicious content. -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: https:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.web3forms.com; frame-ancestors 'self'; base-uri 'self'; object-src 'none'; form-action 'self';">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: https:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.web3forms.com; base-uri 'self'; object-src 'none'; form-action 'self';">
 <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
 <meta http-equiv="X-Content-Type-Options" content="nosniff">
 <title>EVO FIT — Coaching by [abdulrahman altayeb]</title>
@@ -2775,13 +2775,16 @@
     closeClientLogin();
     openClientDashboard();
   }
-  function clientLogout(){
+  async function clientLogout(){
     const token = clientSession ? clientSession.token : localStorage.getItem('evofit_client_token');
-    if(sb && token){ sb.rpc('client_logout', { p_token: token }).catch(()=>{}); }
     clientSession = null;
     localStorage.removeItem('evofit_client_token');
     document.getElementById('clientOverlay').classList.remove('active');
     document.body.style.overflow = '';
+    if(sb && token){
+      try{ await sb.rpc('client_logout', { p_token: token }); }
+      catch(e){ console.error('client_logout failed (session cleared locally anyway):', e); }
+    }
   }
   async function getClientProfile(){
     const token = clientSession ? clientSession.token : localStorage.getItem('evofit_client_token');
