@@ -1700,7 +1700,20 @@
   let TRAINER_PROGRESS = [];
 
   async function loadAllData(){
-    try{ const v = await dbGet('evofit:programs'); if(v) PROGRAMS = v; }catch(e){}
+    try{
+      const v = await dbGet('evofit:programs');
+      if(v){
+        PROGRAMS = v;
+        // Restore any built-in default programs that are missing from the saved list
+        // (e.g. programs added to the site after the last admin save overwrote it).
+        const existingNames = new Set(PROGRAMS.map(p => (p.name||'').trim().toLowerCase()));
+        DEFAULT_PROGRAMS.forEach(dp => {
+          if(!existingNames.has((dp.name||'').trim().toLowerCase())){
+            PROGRAMS.push(dp);
+          }
+        });
+      }
+    }catch(e){}
     try{ const v = await dbGet('evofit:tiers'); if(v) TIER_PRICES = v; }catch(e){}
     try{ const v = await dbGet('evofit:rankFeatures'); if(v) RANK_FEATURES = v; }catch(e){}
     try{ const v = await dbGet('evofit:reviews'); if(v) REVIEWS = v; }catch(e){}
@@ -2433,6 +2446,10 @@
           <input data-field="price_Diamond" type="number" value="${p.prices&&p.prices.Diamond!=null?p.prices.Diamond:''}" placeholder="Diamond">
           <input data-field="price_Elite" type="number" value="${p.prices&&p.prices.Elite!=null?p.prices.Elite:''}" placeholder="Elite">
         </div>
+        <label style="display:flex; align-items:center; gap:8px; font-size:13px; margin-top:4px;">
+          <input type="checkbox" data-field="standardOnly" ${p.standardOnly ? 'checked' : ''}>
+          Standard tier only (flat price, tier selector hidden in shop)
+        </label>
         <button class="admin-delete" onclick="deleteProgramRow(${i})">Delete Program</button>
       </div>
     `).join('');
@@ -2461,7 +2478,8 @@
         tag_ar: row.querySelector('[data-field="tag_ar"]').value,
         name_ar: row.querySelector('[data-field="name_ar"]').value,
         desc_ar: row.querySelector('[data-field="desc_ar"]').value,
-        prices
+        prices,
+        standardOnly: row.querySelector('[data-field="standardOnly"]').checked
       });
     });
     PROGRAMS = arr;
