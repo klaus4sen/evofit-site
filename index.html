@@ -1648,7 +1648,8 @@
     { tag:'Training', name:'Strength & Conditioning', desc:'Full-body strength training built around your goals.' },
     { tag:'Nutrition', name:'Nutrition Coaching', desc:'Custom macros and meal structuring for your schedule.' },
     { tag:'Training + Nutrition', name:'Complete Program', desc:'Training and nutrition combined under one plan.' },
-    { tag:'Health', name:'Health & Conditioning', desc:'Mobility, low-impact conditioning, and lifestyle coaching.' }
+    { tag:'Health', name:'Health & Conditioning', desc:'Mobility, low-impact conditioning, and lifestyle coaching.' },
+    { tag:'Beginner', name:'Standard Full Program', desc:'Complete beginner program — Standard tier only, flat price.', tag_ar:'مبتدئ', name_ar:'البرنامج الكامل للمبتدئين', desc_ar:'برنامج متكامل للمبتدئين — أساسي فقط بسعر ثابت.', prices:{ Standard:10 }, standardOnly:true }
   ];
   const DEFAULT_TIERS = { Standard:199, Gold:349, Diamond:549, Elite:899 };
   const DEFAULT_REVIEWS = [
@@ -2037,6 +2038,14 @@
     PROGRAMS.forEach((p,idx)=>{
       const card = document.createElement('div');
       card.className = 'shop-card';
+      const tierControl = p.standardOnly
+        ? `<span class="tier-select" id="tier-${idx}" data-fixed-tier="Standard" style="display:flex; align-items:center; justify-content:center; pointer-events:none;">${tierLabel('Standard')}</span>`
+        : `<select class="tier-select" id="tier-${idx}" onchange="updateShopPrice(${idx})">
+            <option value="Standard">${tierLabel('Standard')}</option>
+            <option value="Gold">${tierLabel('Gold')}</option>
+            <option value="Diamond">${tierLabel('Diamond')}</option>
+            <option value="Elite">${tierLabel('Elite')}</option>
+          </select>`;
       card.innerHTML = `
         <div class="shop-card-top">
           <div>
@@ -2046,12 +2055,7 @@
           <div class="shop-price" id="price-${idx}">${priceFor(p,'Standard')} ${currencyLabel()}</div>
         </div>
         <div class="shop-controls">
-          <select class="tier-select" id="tier-${idx}" onchange="updateShopPrice(${idx})">
-            <option value="Standard">${tierLabel('Standard')}</option>
-            <option value="Gold">${tierLabel('Gold')}</option>
-            <option value="Diamond">${tierLabel('Diamond')}</option>
-            <option value="Elite">${tierLabel('Elite')}</option>
-          </select>
+          ${tierControl}
           <button class="btn btn-primary" onclick="addFromShop(${idx})">${I18N[currentLang].shop_add_to_cart || 'Add to Cart'}</button>
         </div>
       `;
@@ -2059,13 +2063,18 @@
     });
   }
 
+  function shopTierFor(idx){
+    const el = document.getElementById('tier-'+idx);
+    return el.dataset.fixedTier || el.value;
+  }
+
   function updateShopPrice(idx){
-    const tier = document.getElementById('tier-'+idx).value;
+    const tier = shopTierFor(idx);
     document.getElementById('price-'+idx).textContent = priceFor(PROGRAMS[idx],tier) + ' ' + currencyLabel();
   }
 
   function addFromShop(idx){
-    const tier = document.getElementById('tier-'+idx).value;
+    const tier = shopTierFor(idx);
     addToCart(pField(PROGRAMS[idx],'name'), tier, priceFor(PROGRAMS[idx],tier));
   }
 
